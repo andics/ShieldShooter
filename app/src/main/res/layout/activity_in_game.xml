@@ -20,7 +20,7 @@
         android:layout_alignParentEnd="true"
         android:onClick="reload"
         android:textSize="20sp"
-        android:background="@drawable/fusster_blue_button" />
+        android:background="@drawable/round_blue_fusster" />
 
     <Button
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         android:layout_alignRight="@+id/reloadButton"
         android:layout_alignEnd="@+id/reloadButton"
         android:onClick="shield"
-        android:background="@drawable/fusster_blue_button"
+        android:background="@drawable/round_blue_fusster"
         android:textSize="20sp" />
 
     <Button
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:text="Shoot"
         android:textSize="20sp"
-        android:background="@drawable/fusster_blue_button"
+        android:background="@drawable/round_blue_fusster"
         android:shadowColor="#088DA8"
         android:shadowDx="0"
         android:shadowDy="0"
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/console"
-        android:background="@drawable/round_textbox_green"
+        android:background="@drawable/round_down_green"
         android:layout_above="@+id/button2"
         android:layout_below="@+id/timer"
         android:layout_alignParentRight="true"
