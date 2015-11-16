@@ -3,12 +3,15 @@ package com.example.admin.myapplication;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -24,11 +27,13 @@ public class Utils {
     private static int port;
 
     private static String name;
-    private static List<String> players = new ArrayList<String>();
+    private static List<String> players = new ArrayList<>();
 
     static String sendData;
-    static String receiveData ;
+    static String receiveData;
 
+    public static PrintWriter outToServer;
+    public static BufferedReader inFromServer;
 
     private static Socket clientSocket;
 
@@ -40,16 +45,16 @@ public class Utils {
             Utils.port = port;
             Utils.name = name;
 
-            clientSocket = new Socket(ip, port);
 
             send("reg:" + name);
 
-            new Thread(new Runnable() {
+           new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    receive();
+            //        receive();
                 }
             }).start();
+
 
             //new
 
@@ -59,23 +64,25 @@ public class Utils {
 
     }
 
-    public static void send(String str) {
-        try {
-
-            String sentence = str;
-            DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            outToServer.writeBytes(sentence);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    public static void send(final String str) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    clientSocket = new Socket(Utils.ip, Utils.port);
+                    outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
+                    outToServer.println(str);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+            }
     private static void receive() {
         while (true) {
             try {
-                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String fromServer = inFromServer.readLine().trim();
+                inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                 String fromServer = inFromServer.readLine().trim();
 
                 if (fromServer.startsWith("reg:") && fromServer.length() > 4) {
                     String[] firstSplit = fromServer.split(":");
@@ -91,7 +98,7 @@ public class Utils {
                 if (fromServer.startsWith("msg:")) {
                     String[] split = fromServer.split(":");
                     Utils.append(split[1].trim());
-                    if(split[1].trim().equals("Starting next round")) {
+                    if (split[1].trim().equals("Starting next round")) {
                         inGameActivity.activity.doRound();
                     }
                 }
@@ -100,11 +107,21 @@ public class Utils {
                     clientSocket.close();
                     return;
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            /*    if(e instanceof SocketException) {
+                    try {
+                        clientSocket = new Socket(InetAddress.getByName("130.204.8.60"), 9876);
+                    } catch (IOException e1) {
+                        e.printStackTrace();
+                    }
+            } */
         }
     }
+
+}
+
 
     public static void append(final String str) {
 
