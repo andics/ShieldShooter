@@ -42,12 +42,11 @@ public class Utils {
     public static void register(InetAddress ip, int port, String name) {
         try {
             clientSocket = new Socket(ip, port);
+            Utils.ip=ip;
+            Utils.port=port;
+            Utils.name=name;
                 outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
                 inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-                Utils.ip=ip;
-                Utils.port=port;
-                Utils.name=name;
 
                 send("reg:" + name);
                 new Thread(new Runnable() {
