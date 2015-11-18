@@ -31,7 +31,8 @@
         android:textSize="22dp"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/textView3"
-        android:layout_toEndOf="@+id/textView3" />
+        android:layout_toEndOf="@+id/textView3"
+        android:text="Rambo" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -45,7 +46,8 @@
         android:layout_alignEnd="@+id/nameField"
         android:layout_alignTop="@+id/textView3"
         android:layout_toRightOf="@+id/textView3"
-        android:layout_toEndOf="@+id/textView3" />
+        android:layout_toEndOf="@+id/textView3"
+        android:text="192.168.20.20" />
 
     <TextView
         android:layout_width="wrap_content"

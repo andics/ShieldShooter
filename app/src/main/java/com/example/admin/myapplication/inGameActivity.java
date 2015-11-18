@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,7 +40,7 @@ public class inGameActivity extends ActionBarActivity {
             public void run() {
                 seconds++;
                 if(seconds<=Variables.ROUND_DELAY) {
-                    timerText.setText(Variables.ROUND_DELAY-seconds + "seconds left");
+                    timerText.setText(Variables.ROUND_DELAY-seconds + " seconds left");
                 } else {
                     super.cancel();
                 }
@@ -52,11 +53,12 @@ public class inGameActivity extends ActionBarActivity {
     }
 
     public void reload(View v){
-        send("reload:"+getName());
+        send("reload:" + getName());
+        append("reloaded" + "\n");
     }
 
     public void shield(View v){
-        send("reload:" + getName());
+        send("shield:" + getName());
     }
 
 }
