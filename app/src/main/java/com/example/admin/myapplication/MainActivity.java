@@ -2,6 +2,7 @@ package com.example.admin.myapplication;
 
 import static com.example.admin.myapplication.Utils.*;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -20,6 +21,7 @@ import java.net.InetAddress;
 
 public class MainActivity extends ActionBarActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
         Button button = (Button) findViewById(R.id.connect);
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        button.setWidth(metrics.widthPixels/6);
+        button.setWidth(metrics.widthPixels / 6);
         button.setHeight(metrics.widthPixels/6);
     }
 
@@ -38,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
         boolean connected = activeNetworkInfo != null && activeNetworkInfo.isConnected();
         if(connected) {
             startActivity(new Intent(this, ConnectActivity.class));
+            finish();
         } else {
             Toast.makeText(MainActivity.this, "Please make sure you are connected to internet!", Toast.LENGTH_LONG).show();
         }

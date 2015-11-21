@@ -1,6 +1,8 @@
 package com.example.admin.myapplication;
 
 import static com.example.admin.myapplication.Utils.*;
+
+import android.app.Activity;
 import android.app.LauncherActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class TargetsActivity extends ActionBarActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,5 +34,4 @@ public class TargetsActivity extends ActionBarActivity {
             }
         });
     }
-
 }

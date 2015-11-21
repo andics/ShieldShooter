@@ -33,5 +33,4 @@
             android:name=".TargetsActivity">
         </activity>
     </application>
-
 </manifest>

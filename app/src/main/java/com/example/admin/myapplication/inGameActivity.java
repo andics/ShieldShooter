@@ -21,7 +21,6 @@ public class inGameActivity extends ActionBarActivity {
     TextView timerText;
     public static inGameActivity activity;
     public int seconds;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +28,11 @@ public class inGameActivity extends ActionBarActivity {
         console = (TextView) findViewById(R.id.console);
         activity = this;
         Utils.setConsole(console);
+    }
+
+    public void finishAndRestart() {
+        startActivity(new Intent(this,ConnectActivity.class));
+        finish();
     }
 
     public void doRound() {
@@ -54,7 +58,6 @@ public class inGameActivity extends ActionBarActivity {
 
     public void reload(View v){
         send("reload:" + getName());
-        append("reloaded" + "\n");
     }
 
     public void shield(View v){
