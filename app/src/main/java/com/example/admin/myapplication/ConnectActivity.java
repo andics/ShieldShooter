@@ -63,12 +63,12 @@ public class ConnectActivity extends ActionBarActivity {
                                     if (secondsRespond == 0) {
                                         Log.e("soconds", "0");
                                         setText("Connecting failed");
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                disconnect();
-                                            }
-                                        }).start();
+                                        try {
+                                            Utils.clientSocket.close();
+                                            t.cancel();
+                                        } catch (IOException e) {
+                                            Log.e("bug", "fail to close the socket on fail");
+                                        }
                                     }
                                     if (Utils.clientSocket == null) {
                                         setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
@@ -89,9 +89,7 @@ public class ConnectActivity extends ActionBarActivity {
         if(Utils.clientSocket!=null) {
             if (Utils.clientSocket.isConnected() == true) {
                 try {
-                    Log.e("recurse","Trying begining!");
-                    Utils.connectedToServer=false;
-                    Utils.inFromServer.close();
+                    Log.e("recurse", "Trying begining!");
                     Utils.clientSocket.close();
                     Log.e("recurse","Trying!");
                     Utils.clientSocket=null;

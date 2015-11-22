@@ -127,6 +127,11 @@ public class Utils extends ActionBarActivity {
             }
         } catch (SocketException e) {
             e.printStackTrace();
+            try {
+                inFromServer.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             Log.e("Null receive", "Disconnected");
         } catch (IOException e) {
             e.printStackTrace();
