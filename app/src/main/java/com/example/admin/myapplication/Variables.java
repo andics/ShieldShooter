@@ -9,6 +9,7 @@ public class Variables {
     public static int MAX_PLAYERS;
     public static int ROUND_DELAY;
     public static int CONNECTION_WAIT=10;
+    public static int RESPOND_WAIT=10;
     public static int WAIT_FOR_PLAYERS;
     public static int MAX_AMMO;
     public static int MAX_SHIELDS_IN_A_ROW;
@@ -23,6 +24,8 @@ public class Variables {
                 return ROUND_DELAY;
             case "CONNECTION_WAIT":
                 return CONNECTION_WAIT;
+            case "RESPOND_WAIT":
+                return RESPOND_WAIT;
             case "WAIT_FOR_PLAYERS":
                 return WAIT_FOR_PLAYERS;
             case "MAX_AMMO":
@@ -43,6 +46,8 @@ public class Variables {
                 ROUND_DELAY = value;
             case "CONNECTION_WAIT":
                 CONNECTION_WAIT = value;
+            case "RESPOND_WAIT":
+                RESPOND_WAIT = value;
             case "WAIT_FOR_PLAYERS":
                 WAIT_FOR_PLAYERS = value;
             case "MAX_AMMO":

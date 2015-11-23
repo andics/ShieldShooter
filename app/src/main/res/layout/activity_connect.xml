@@ -16,7 +16,7 @@
         android:background="@drawable/round_very_green"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/button"
+        android:id="@+id/connectToServerButton"
         android:onClick="register" />
 
     <EditText

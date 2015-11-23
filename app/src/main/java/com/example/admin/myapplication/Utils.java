@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +17,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +46,10 @@ public class Utils extends ActionBarActivity {
     private static List<String> players = new ArrayList<>();
 
     private static TextView console;
+
+    private static Button shoot;
+    private static Button shield;
+    private static Button reload;
 
     public static boolean connectedToServer, connected=false;
 
@@ -96,20 +102,29 @@ public class Utils extends ActionBarActivity {
                         if (fromServer.startsWith("reg:") && fromServer.length() > 4) {
                             String[] firstSplit = fromServer.split(":");
                             Utils.players = Arrays.asList(firstSplit[1].split(","));
+                            append(firstSplit[1] + " joined the game");
                         }
 
                         if (fromServer.startsWith("var:")) {
                             String[] firstSplit = fromServer.split(":");
                             String[] secondSplit = firstSplit[1].split("-");
-                            Variables.set(secondSplit[0], Integer.parseInt(secondSplit[1]));
+                            Variables.set(secondSplit[0], Integer.parseInt(secondSplit[1].trim()));
                         }
 
                         if (fromServer.startsWith("msg:")) {
                             String[] split = fromServer.split(":");
-                            Utils.append(split[1]);
-                            if (split[1].trim().equals("Starting next round")) {
+                            if (split[1].equals("newRound")) {
                                 inGameActivity.activity.doRound();
+                                Utils.append("Starting next round");
+                            } else {
+                                Utils.append(split[1]);
                             }
+                        }
+
+                        if (fromServer.startsWith("shot:"))
+                        {
+                            String[] firstSplit = fromServer.split(":");
+                            dissableButtons(firstSplit[1]);
                         }
 
                         if (fromServer.startsWith("close")) {
@@ -141,7 +156,7 @@ public class Utils extends ActionBarActivity {
     }
 
 
-    public static void append(final String str) {
+    private static void append(final String str) {
 
         inGameActivity.activity.runOnUiThread(new Runnable() {
             @Override
@@ -154,9 +169,27 @@ public class Utils extends ActionBarActivity {
         });
     }
 
-    public static void setConsole(TextView console){
+    private static void dissableButtons(final String str) {
+        inGameActivity.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                append("You have been shot by: "+ str + "..." + "REKT KIDDO 2 EZ GTFO");
+                shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
+                shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
+                reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
+                shoot.setEnabled(false);
+                shield.setEnabled(false);
+                reload.setEnabled(false);
+            }
+        });
+    }
+
+    public static void setUnits(TextView console, Button shoot, Button shield, Button reload){
         console.setText("");
         Utils.console = console;
+        Utils.shoot = shoot;
+        Utils.shield = shield;
+        Utils.reload = reload;
     }
 
     public static String getName() {
