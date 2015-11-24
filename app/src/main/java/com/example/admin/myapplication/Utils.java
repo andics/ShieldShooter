@@ -102,7 +102,9 @@ public class Utils extends ActionBarActivity {
                         if (fromServer.startsWith("reg:") && fromServer.length() > 4) {
                             String[] firstSplit = fromServer.split(":");
                             Utils.players = Arrays.asList(firstSplit[1].split(","));
-                            append(firstSplit[1] + " joined the game");
+                            for(String player: Utils.players) {
+                                append(player + " joined the game");
+                            }
                         }
 
                         if (fromServer.startsWith("var:")) {
@@ -164,7 +166,7 @@ public class Utils extends ActionBarActivity {
         /*        Spannable word = new SpannableString("Your message");
                 word.setSpan(new ForegroundColorSpan(Color.BLUE), 0, word.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 console.colosetSpan(new ForegroundColorSpan(Color.RED), 0, 5, 0); */
-                console.append("\n" + str + "\n");
+                console.append(str + "\n");
             }
         });
     }
