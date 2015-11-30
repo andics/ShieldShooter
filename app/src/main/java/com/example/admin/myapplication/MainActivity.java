@@ -1,8 +1,5 @@
 package com.example.admin.myapplication;
 
-import static com.example.admin.myapplication.Utils.*;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -14,10 +11,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.net.InetAddress;
+import com.example.admin.myapplication.Activities.ConnectActivity;
 
 public class MainActivity extends ActionBarActivity {
 

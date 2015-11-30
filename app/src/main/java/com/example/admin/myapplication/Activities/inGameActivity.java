@@ -1,23 +1,20 @@
-package com.example.admin.myapplication;
+package com.example.admin.myapplication.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import java.net.InetAddress;
+import com.example.admin.myapplication.R;
+import com.example.admin.myapplication.GameStatics.Utils;
+import com.example.admin.myapplication.Variables.Variables;
+
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Handler;
 
-import static com.example.admin.myapplication.Utils.*;
+import static com.example.admin.myapplication.GameStatics.Utils.*;
 
 public class inGameActivity extends ActionBarActivity {
 

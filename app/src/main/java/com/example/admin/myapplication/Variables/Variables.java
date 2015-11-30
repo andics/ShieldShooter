@@ -1,4 +1,4 @@
-package com.example.admin.myapplication;
+package com.example.admin.myapplication.Variables;
 
 /**
  * Created by Admin on 07/11/2015.

@@ -1,14 +1,16 @@
-package com.example.admin.myapplication;
+package com.example.admin.myapplication.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.admin.myapplication.R;
+import com.example.admin.myapplication.GameStatics.Utils;
+import com.example.admin.myapplication.Variables.Variables;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -44,7 +46,7 @@ public class ConnectActivity extends ActionBarActivity {
         }).start();
         t= new Timer();
         seconds=0;
-        secondsRespond=Variables.RESPOND_WAIT;
+        secondsRespond= Variables.RESPOND_WAIT;
                 t.scheduleAtFixedRate(new TimerTask() {
                     @Override
                     public void run() {
@@ -57,15 +59,13 @@ public class ConnectActivity extends ActionBarActivity {
                                             secondsRespond--;
                                             setText("Connecting..." + secondsRespond + " seconds left");
                                             Log.e("Connected", "still counting...");
-                                            if (Utils.connected == true) {
-                                                Log.e("Connected", "true");
-                                                setText("Connected! Heading to game");
-                                                try {
-                                                    t.cancel();
-                                                    switchActivity();
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
+                                            Log.e("Connected", "true");
+                                            setText("Connected! Heading to game");
+                                            try {
+                                                t.cancel();
+                                                switchActivity();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
                                             }
                                         }
                                         if (secondsRespond == 0) {
@@ -74,20 +74,19 @@ public class ConnectActivity extends ActionBarActivity {
                                             connect.setEnabled(true);
                                             connect.setBackgroundResource(R.drawable.round_very_green);
                                             try {
-                                                Utils.clientSocket.close();
                                                 t.cancel();
+                                                Utils.clientSocket.close();
                                             } catch (IOException e) {
                                                 Log.e("bug", "fail to close the socket on fail");
                                             }
                                         }
-                                        if (Utils.clientSocket == null) {
+                                    } else if (Utils.clientSocket == null) {
+                                        setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
+                                        seconds++;
+                                    } else {
+                                        if (Utils.clientSocket.isConnected() == false) {
                                             setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
                                             seconds++;
-                                        } else {
-                                            if (Utils.clientSocket.isConnected() == false) {
-                                                setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
-                                                seconds++;
-                                            }
                                         }
                                     }
                                 } else {

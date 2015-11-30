@@ -23,14 +23,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ConnectActivity"
+            android:name=".Activities.ConnectActivity"
             android:label="Connect to the Server!" >
         </activity>
         <activity
-            android:name=".inGameActivity">
+            android:name=".Activities.inGameActivity">
         </activity>
         <activity
-            android:name=".TargetsActivity">
+            android:name=".Activities.TargetsActivity">
         </activity>
     </application>
 </manifest>
