@@ -33,7 +33,7 @@ public class TargetsActivity extends Activity {
                 String selectedPlayer = Utils.getPlayers().get(position);
                 send("shoot:" + selectedPlayer.trim());
                 inGameActivity inGameActivityConstructor = new inGameActivity();
-                inGameActivityConstructor.shots= Variables.get("MAX_SHIELDS_IN_A_ROW");
+                inGameActivityConstructor.shots--;
                 Utils.dissableButtons(null ,"You played shoot this round");
                 startActivity(intent);
             }

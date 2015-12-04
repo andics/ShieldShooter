@@ -52,58 +52,65 @@ public class inGameActivity extends Activity {
     }
 
     public void doRound() {
-        if(isFirstRound) {
-            maxShotsText.setText(Variables.get("MAX_AMMO"));
-            shields = Variables.get("MAX_SHIELDS_IN_A_ROW");
-            isFirstRound=false;
-        }
-        t= new Timer();
-        seconds=0;
-        timerText=(TextView) findViewById(R.id.timer);
-        Log.e("RIP", "Well, you tried");
-        if(shields>0) {
-            Utils.enableButtons("shield", null);
-            shieldsLeftText.setText(shields);
-        }
-        if(shots>0) {
-            Utils.enableButtons("shield", null);
-            shotsCurrentText.setText(shots);
-        }
-        if(shots<Variables.get("MAX_AMMO")) {
-            Utils.enableButtons("reload", null);
-        }
-        t.scheduleAtFixedRate(new TimerTask() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        seconds++;
-                        if (seconds <= Variables.ROUND_DELAY) {
-                            timerText.setText(Variables.ROUND_DELAY - seconds + " seconds left");
-                        } else {
-                            t.cancel();
-                        }
-                    }
-                });
-                }
-            },0,1000);
-    }
+                                if (isFirstRound) {
+                                    maxShotsText.setText(String.valueOf(Variables.allVariables.get("MAX_AMMO")));
+                                    shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+                                    isFirstRound = false;
+                                }
+                                t = new Timer();
+                                seconds = 0;
+                                timerText = (TextView) findViewById(R.id.timer);
+                                Log.e("RIP", "Well, you tried");
+                                if (shields > 0) {
+                                    Utils.enableButtons("shield", null);
+                                    shieldsLeftText.setText(String.valueOf(shields));
+                                }
+                                if (shots > 0) {
+                                    Utils.enableButtons("shield", null);
+                                    shotsCurrentText.setText(String.valueOf(shots));
+                                }
+                                if (shots < Variables.allVariables.get("MAX_AMMO")) {
+                                    Utils.enableButtons("reload", null);
+                                }
+                                t.scheduleAtFixedRate(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                seconds++;
+                                                if (seconds <= Variables.allVariables.get("ROUND_DELAY")) {
+                                                    timerText.setText(Variables.allVariables.get("ROUND_DELAY") - seconds + " seconds left");
+                                                } else {
+                                                    t.cancel();
+                                                }
+                                            }
+                                        });
+                                    }
+                                }, 0, 1000);
+                            }
+                                        });
+                                    }
 
-    public void shoot(View v){
-        shots++;
-        shields=Variables.get("MAX_SHIELDS_IN_A_ROW");
-        startActivity(new Intent(this,TargetsActivity.class));
-    }
+                                    public void shoot(View v) {
+                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+                                        startActivity(new Intent(this, TargetsActivity.class));
+                                    }
 
-    public void reload(View v){ send("reload");
-        shields=Variables.get("MAX_SHIELDS_IN_A_ROW");
-        Utils.dissableButtons(null , "You reloaded this round");
-    }
+                                    public void reload(View v) {
+                                        send("reload");
+                                        shots++;
+                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+                                        Utils.dissableButtons(null, "You reloaded this round");
+                                    }
 
-    public void shield(View v){ send("shield");
-        shields--;
-        Utils.dissableButtons(null ,"You played defence this round");
-    }
+                                    public void shield(View v) {
+                                        send("shield");
+                                        shields--;
+                                        Utils.dissableButtons(null, "You played defence this round");
+                                    }
 
-}
+                                }

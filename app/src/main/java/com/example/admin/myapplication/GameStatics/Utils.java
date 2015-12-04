@@ -93,14 +93,19 @@ public class Utils extends ActionBarActivity {
                             if (fromServer.startsWith("var:")) {
                                 String[] firstSplit = fromServer.split(":");
                                 String[] secondSplit = firstSplit[1].split("-");
-                                if(secondSplit[0]!="MAX_PLAYERS" && secondSplit[0]!="MIN_PLAYERS" && secondSplit[0]!="START_AMMO")
-                                Variables.set(secondSplit[0], Integer.parseInt(secondSplit[1].trim()));
+                                Variables.allVariables.put(secondSplit[0], Integer.parseInt(secondSplit[1].trim()));
+                                Log.e(secondSplit[0], secondSplit[1].trim());
                             }
 
                             if (fromServer.startsWith("msg:")) {
                                 String[] split = fromServer.split(":");
                                 if (split[1].equals("newRound")) {
-                                    inGameActivity.activity.doRound();
+                                    inGameActivity.activity.runOnUiThread(new Runnable() {
+                                           @Override
+                                       public void run() {
+                                           inGameActivity.activity.doRound();
+                                                }
+                                            });
                                     Utils.append("Starting next round");
                                 } else {
                                     Utils.append(split[1]);
