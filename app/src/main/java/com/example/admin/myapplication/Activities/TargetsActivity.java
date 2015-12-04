@@ -2,6 +2,7 @@ package com.example.admin.myapplication.Activities;
 
 import static com.example.admin.myapplication.GameStatics.Utils.*;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,8 +13,9 @@ import android.widget.ListView;
 
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.GameStatics.Utils;
+import com.example.admin.myapplication.Variables.Variables;
 
-public class TargetsActivity extends ActionBarActivity {
+public class TargetsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +31,10 @@ public class TargetsActivity extends ActionBarActivity {
                                     long id) {
                 Intent intent = new Intent(TargetsActivity.this, inGameActivity.class);
                 String selectedPlayer = Utils.getPlayers().get(position);
-                send("shoot+" + selectedPlayer.trim() + ":" + Utils.getName());
+                send("shoot:" + selectedPlayer.trim());
+                inGameActivity inGameActivityConstructor = new inGameActivity();
+                inGameActivityConstructor.shots= Variables.get("MAX_SHIELDS_IN_A_ROW");
+                Utils.dissableButtons(null ,"You played shoot this round");
                 startActivity(intent);
             }
         });

@@ -1,5 +1,6 @@
 package com.example.admin.myapplication.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -17,7 +18,7 @@ import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ConnectActivity extends ActionBarActivity {
+public class ConnectActivity extends Activity {
     int seconds, secondsRespond;
     Timer t;
     Button connect;
@@ -60,12 +61,14 @@ public class ConnectActivity extends ActionBarActivity {
                                             setText("Connecting..." + secondsRespond + " seconds left");
                                             Log.e("Connected", "still counting...");
                                             Log.e("Connected", "true");
-                                            setText("Connected! Heading to game");
-                                            try {
-                                                t.cancel();
-                                                switchActivity();
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
+                                            if(Utils.connected) {
+                                                setText("Connected! Heading to game");
+                                                try {
+                                                    t.cancel();
+                                                    switchActivity();
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         }
                                         if (secondsRespond == 0) {
@@ -83,11 +86,6 @@ public class ConnectActivity extends ActionBarActivity {
                                     } else if (Utils.clientSocket == null) {
                                         setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
                                         seconds++;
-                                    } else {
-                                        if (Utils.clientSocket.isConnected() == false) {
-                                            setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
-                                            seconds++;
-                                        }
                                     }
                                 } else {
                                     t.cancel();

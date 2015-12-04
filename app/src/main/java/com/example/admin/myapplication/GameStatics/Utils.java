@@ -67,8 +67,12 @@ public class Utils extends ActionBarActivity {
     }
 
     //That method is called many times after "send("reg:" + name);"
-    public static void send(String str) {
+    public static void send(String str)
+    {
+        if(clientSocket.isConnected() && !clientSocket.isClosed())
         outToServer.println(str);
+        else
+            disconnect();
     }
 
     private static void receive() {
@@ -89,6 +93,7 @@ public class Utils extends ActionBarActivity {
                             if (fromServer.startsWith("var:")) {
                                 String[] firstSplit = fromServer.split(":");
                                 String[] secondSplit = firstSplit[1].split("-");
+                                if(secondSplit[0]!="MAX_PLAYERS" && secondSplit[0]!="MIN_PLAYERS" && secondSplit[0]!="START_AMMO")
                                 Variables.set(secondSplit[0], Integer.parseInt(secondSplit[1].trim()));
                             }
 
@@ -104,31 +109,37 @@ public class Utils extends ActionBarActivity {
 
                             if (fromServer.startsWith("shot:")) {
                                 String[] firstSplit = fromServer.split(":");
-                                dissableButtons(firstSplit[1]);
+                                dissableButtons(null , "You have been shot by: "+ firstSplit[1]);
                             }
 
                             if (fromServer.startsWith("close")) {
                                 clientSocket.close();
                                 append("You have been disconnected from the server!");
-                                try {
-                                    Thread.sleep(2500);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                inGameActivity.activity.finishAndRestart();
+                                disconnect();
                                 return;
                             }
                             if (fromServer.startsWith("connected")) {
-                                //   Log.e("RECIEVED", "CONNECTED");
+                                   Log.e("RECIEVED", "CONNECTED");
                                 connected = true;
                             }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                        disconnect();
                     }
                 }
             }
         }).start();
+    }
+
+    private static void disconnect() {
+        append("You have been disconnected from the server!");
+        try {
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        inGameActivity.activity.finishAndRestart();
     }
 
     private static void append(final String str) {
@@ -139,22 +150,67 @@ public class Utils extends ActionBarActivity {
         /*        Spannable word = new SpannableString("Your message");
                 word.setSpan(new ForegroundColorSpan(Color.BLUE), 0, word.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 console.colosetSpan(new ForegroundColorSpan(Color.RED), 0, 5, 0); */
-                console.append(str + "\n");
+                console.append("\n" + str + "\n");
             }
         });
     }
 
-    private static void dissableButtons(final String str) {
+    public static void enableButtons(final String button, final String str) {
         inGameActivity.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                append("You have been shot by: "+ str + "..." + "REKT KIDDO 2 EZ GTFO");
-                shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
-                shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
-                reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
-                shoot.setEnabled(false);
-                shield.setEnabled(false);
-                reload.setEnabled(false);
+                if(button!=null) {
+                    switch (button) {
+                        case "shoot":
+                            shoot.setBackgroundResource(R.drawable.round_blue_fusster);
+                            shoot.setEnabled(true);
+                        case "shield":
+                            shield.setBackgroundResource(R.drawable.round_blue_fusster);
+                            shield.setEnabled(true);
+                        case "reload":
+                            reload.setBackgroundResource(R.drawable.round_blue_fusster);
+                            reload.setEnabled(true);
+                    }
+                } else {
+                        shoot.setBackgroundResource(R.drawable.round_blue_fusster);
+                        shield.setBackgroundResource(R.drawable.round_blue_fusster);
+                        reload.setBackgroundResource(R.drawable.round_blue_fusster);
+                        shoot.setEnabled(true);
+                        shield.setEnabled(true);
+                        reload.setEnabled(true);
+                    }
+                if(str!=null)
+                    append(str);
+            }
+        });
+    }
+
+    public static void dissableButtons(final String button, final String str) {
+        inGameActivity.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(button!=null) {
+                    switch (button) {
+                        case "shoot":
+                            shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
+                            shoot.setEnabled(false);
+                        case "shield":
+                            shield.setBackgroundColor(Color.parseColor("#6E6E6E"));
+                            shield.setEnabled(false);
+                        case "reload":
+                            reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
+                            reload.setEnabled(false);
+                    }
+                } else {
+                    shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
+                    shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
+                    reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
+                    shoot.setEnabled(false);
+                    shield.setEnabled(false);
+                    reload.setEnabled(false);
+                }
+                if(str!=null)
+                append(str);
             }
         });
     }

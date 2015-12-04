@@ -34,11 +34,12 @@
         android:shadowRadius="5"
         android:layout_above="@+id/shieldButton"
         android:id="@+id/shootButton"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="shoot" />
+        android:onClick="shoot"
+        android:layout_toStartOf="@+id/textView"
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -47,29 +48,29 @@
         android:background="@drawable/round_down_green"
         android:layout_above="@+id/shootButton"
         android:layout_below="@+id/timer"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:editable="false"
         android:clickable="true"
-        android:singleLine="false" />
+        android:singleLine="false"
+        android:layout_toLeftOf="@+id/shieldLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Time Left"
+        android:text="Waiting for a round to start"
         android:id="@+id/timer"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:enabled="true"
         android:background="#009f9a"
         android:textAlignment="center"
         android:textColor="#ffffff"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/textView"
+        android:layout_alignRight="@+id/console"
+        android:layout_alignEnd="@+id/console" />
 
     <Button
         android:layout_width="wrap_content"
@@ -80,9 +81,93 @@
         android:background="@drawable/round_blue_fusster"
         android:textSize="20sp"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/textView"
+        android:layout_alignRight="@+id/shieldButton"
+        android:layout_alignEnd="@+id/shieldButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your stats"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_above="@+id/shootButton"
+        android:layout_alignLeft="@+id/shieldLabel"
+        android:layout_alignStart="@+id/shieldLabel" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/shieldLabel"
+        android:text="Shields left:"
+        android:layout_alignTop="@+id/console"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ammoLeftLabel"
+        android:text="Shots:"
+        android:layout_below="@+id/shieldsLeft"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="28dp"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/shieldsLeft"
+        android:textAlignment="center"
+        android:layout_toRightOf="@+id/console"
+        android:layout_alignRight="@+id/shootButton"
+        android:layout_alignEnd="@+id/shootButton"
+        android:textColor="#ffffff"
+        android:background="@drawable/round_grey"
+        android:layout_below="@+id/shieldLabel" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Shots"
+        android:textAlignment="center"
+        android:textColor="#ffffff"
+        android:background="@drawable/round_grey"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/ammoLeftLabel"
+        android:layout_toRightOf="@+id/console"
+        android:layout_toEndOf="@+id/console" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText2"
+        android:text="Maximum shots:"
+        android:layout_below="@+id/Shots"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="23dp"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/maxShots"
+        android:textAlignment="center"
+        android:textColor="#ffffff"
+        android:background="@drawable/round_grey"
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView"
+        android:layout_below="@+id/editText2"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
 
 </RelativeLayout>

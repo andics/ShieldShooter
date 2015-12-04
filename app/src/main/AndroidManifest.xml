@@ -24,13 +24,20 @@
         </activity>
         <activity
             android:name=".Activities.ConnectActivity"
-            android:label="Connect to the Server!" >
+            android:label="Connect to the Server!"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity
-            android:name=".Activities.inGameActivity">
+            android:name=".Activities.inGameActivity"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity
-            android:name=".Activities.TargetsActivity">
+            android:name=".Activities.TargetsActivity"
+            android:label="Choose your target"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 </manifest>
