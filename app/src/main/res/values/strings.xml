@@ -4,4 +4,5 @@
     <string name="title_activity_connect">ConnectActivity</string>
     <string name="title_activity_in_game">inGameActivity</string>
     <string name="title_activity_targets">TargetsActivity</string>
+    <string name="title_activity_game">game</string>
 </resources>
