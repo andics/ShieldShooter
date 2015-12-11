@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Fusster</string>
     <string name="action_settings">Settings</string>
+    <drawable name="fusster_color">#576cc7</drawable>
     <string name="title_activity_connect">ConnectActivity</string>
     <string name="title_activity_in_game">inGameActivity</string>
     <string name="title_activity_targets">TargetsActivity</string>

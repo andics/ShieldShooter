@@ -7,7 +7,7 @@
         android:bottomRightRadius="10dp"
         />
     <solid
-        android:color="#38B9E8"
+        android:color="@drawable/fusster_color"
         />
     <padding
         android:left="0dp"

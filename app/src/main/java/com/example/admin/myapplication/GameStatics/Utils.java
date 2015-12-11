@@ -6,7 +6,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.admin.myapplication.Activities.inGameActivity;
+import com.example.admin.myapplication.Activities.game;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
 
@@ -100,10 +100,10 @@ public class Utils extends ActionBarActivity {
                             if (fromServer.startsWith("msg:")) {
                                 String[] split = fromServer.split(":");
                                 if (split[1].equals("newRound")) {
-                                    inGameActivity.activity.runOnUiThread(new Runnable() {
+                                    game.activity.runOnUiThread(new Runnable() {
                                            @Override
                                        public void run() {
-                                           inGameActivity.activity.doRound();
+                                               game.activity.doRound(15);
                                                 }
                                             });
                                     Utils.append("Starting next round");
@@ -144,12 +144,12 @@ public class Utils extends ActionBarActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        inGameActivity.activity.finishAndRestart();
+        game.activity.finishAndRestart();
     }
 
     private static void append(final String str) {
 
-        inGameActivity.activity.runOnUiThread(new Runnable() {
+        game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
         /*        Spannable word = new SpannableString("Your message");
@@ -161,7 +161,7 @@ public class Utils extends ActionBarActivity {
     }
 
     public static void enableButtons(final String button, final String str) {
-        inGameActivity.activity.runOnUiThread(new Runnable() {
+        game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if(button!=null) {
@@ -191,10 +191,10 @@ public class Utils extends ActionBarActivity {
     }
 
     public static void dissableButtons(final String button, final String str) {
-        inGameActivity.activity.runOnUiThread(new Runnable() {
+        game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(button!=null) {
+                if (button != null) {
                     switch (button) {
                         case "shoot":
                             shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
@@ -214,8 +214,8 @@ public class Utils extends ActionBarActivity {
                     shield.setEnabled(false);
                     reload.setEnabled(false);
                 }
-                if(str!=null)
-                append(str);
+                if (str != null)
+                    append(str);
             }
         });
     }
