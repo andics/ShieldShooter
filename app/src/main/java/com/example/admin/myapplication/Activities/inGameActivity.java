@@ -3,10 +3,10 @@ package com.example.admin.myapplication.Activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.admin.myapplication.R;
@@ -29,20 +29,20 @@ public class inGameActivity extends Activity {
     public static inGameActivity activity;
     public int seconds;
     private boolean isFirstRound;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_in_game);
-        console = (TextView) findViewById(R.id.console);
-        activity = this;
-        Utils.setUnits(console, (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
-        shotsCurrentText=(TextView) findViewById(R.id.Shots);
-        maxShotsText=(TextView) findViewById(R.id.maxShots);
-        shieldsLeftText=(TextView) findViewById(R.id.shieldsLeft);
-        Utils.dissableButtons(null, null);
-        shots = 0;
-        isFirstRound=true;
-    }
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_in_gamesdfsdf);
+//        console = (TextView) findViewById(R.id.console);
+//        activity = this;
+//        Utils.setUnits(console, (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
+//        shotsCurrentText=(TextView) findViewById(R.id.Shots);
+//        maxShotsText=(TextView) findViewById(R.id.maxShots);
+//        shieldsLeftText=(TextView) findViewById(R.id.shieldsLeft);
+//        Utils.dissableButtons(null, null);
+//        shots = 0;
+//        isFirstRound=true;
+//    }
 
 
 
@@ -95,22 +95,22 @@ public class inGameActivity extends Activity {
                                         });
                                     }
 
-                                    public void shoot(View v) {
-                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
-                                        startActivity(new Intent(this, TargetsActivity.class));
-                                    }
-
-                                    public void reload(View v) {
-                                        send("reload");
-                                        shots++;
-                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
-                                        Utils.dissableButtons(null, "You reloaded this round");
-                                    }
-
-                                    public void shield(View v) {
-                                        send("shield");
-                                        shields--;
-                                        Utils.dissableButtons(null, "You played defence this round");
-                                    }
+//                                    public void shoot(View v) {
+//                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+//                                        startActivity(new Intent(this, TargetsActivity.class));
+//                                    }
+//
+//                                    public void reload(View v) {
+//                                        send("reload");
+//                                        shots++;
+//                                        shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+//                                        Utils.dissableButtons(null, "You reloaded this round");
+//                                    }
+//
+//                                    public void shield(View v) {
+//                                        send("shield");
+//                                        shields--;
+//                                        Utils.dissableButtons(null, "You played defence this round");
+//                                    }
 
                                 }

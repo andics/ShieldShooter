@@ -1,6 +1,9 @@
 package com.example.admin.myapplication.GameStatics;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Button;
@@ -16,7 +19,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +29,9 @@ public class Utils extends ActionBarActivity {
     private static int port;
 
     private static String name;
-    private static List<String> players = new ArrayList<>();
+    public static List<Player> players = new ArrayList<>();
 
-    private static TextView console;
+    private static TextView console, shotsCurrentText, maxShotsText, shieldsLeftText;
 
     private static Button shoot;
     private static Button shield;
@@ -69,10 +71,12 @@ public class Utils extends ActionBarActivity {
     //That method is called many times after "send("reg:" + name);"
     public static void send(String str)
     {
-        if(clientSocket.isConnected() && !clientSocket.isClosed())
-        outToServer.println(str);
-        else
-            disconnect();
+        Log.e("Sent", str);
+        if(clientSocket!=null) {
+            if (clientSocket.isConnected() && !clientSocket.isClosed())
+                outToServer.println(str);
+        } else
+            disconnected();
     }
 
     private static void receive() {
@@ -82,11 +86,15 @@ public class Utils extends ActionBarActivity {
                     try {
                         String fromServer = inFromServer.readLine();
                         if (fromServer != null) {
+                            Log.e("Recieved",fromServer);
                             if (fromServer.startsWith("reg:") && fromServer.length() > 4) {
                                 String[] firstSplit = fromServer.split(":");
-                                Utils.players = Arrays.asList(firstSplit[1].split(","));
-                                for (String player : Utils.players) {
-                                    append(player + " joined the game");
+                                if(game.isFirstRound) {
+                                    Utils.players.clear();
+                                    for (String playerName : Arrays.asList(firstSplit[1].split(","))) {
+                                        Utils.players.add(new Player(playerName));
+                                        append(playerName + " joined the game.");
+                                    }
                                 }
                             }
 
@@ -99,11 +107,12 @@ public class Utils extends ActionBarActivity {
 
                             if (fromServer.startsWith("msg:")) {
                                 String[] split = fromServer.split(":");
-                                if (split[1].equals("newRound")) {
+                                if (split[1].trim().equals("newRound")) {
+                                    Log.e("newRound","mhm");
                                     game.activity.runOnUiThread(new Runnable() {
                                            @Override
                                        public void run() {
-                                               game.activity.doRound(15);
+                                               game.activity.doRound(Variables.allVariables.get("ROUND_DELAY"));
                                                 }
                                             });
                                     Utils.append("Starting next round");
@@ -111,16 +120,54 @@ public class Utils extends ActionBarActivity {
                                     Utils.append(split[1]);
                                 }
                             }
+                            if (fromServer.startsWith("shield:")) {
+                                String[] firstSplit = fromServer.split(":");
+                                append(firstSplit[1] + " played shield this round");
+                                Player p = getPlayer(firstSplit[1]);
+                                p.setShieldsInARow(Integer.parseInt(firstSplit[2]));
+                            }
+                            if (fromServer.startsWith("shoot:")) {
+                                final String[] firstSplit = fromServer.split(":");
+                                if(!firstSplit[1].equals(getName())) {
+                                    Player p = getPlayer(firstSplit[1]);
+                                    p.setShots(p.getShots() - 1);
+                                    p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+                                } else {
+                                    append("You shot" + firstSplit[2]);
+                                }
+                                if(firstSplit[3].equals("fail")) {
+                                    Log.e("fail", "fail");
+                                    append(firstSplit[1] + " tried to shoot " + firstSplit[2] + ", but " + firstSplit[2] + " defended");
+                                } else if(firstSplit[3].equals("success")) {
+                                    Log.e("success", firstSplit[2]);
+                                    append(firstSplit[1] + " shot " + firstSplit[2]);
+                                  //  if()
+                                    game.activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            game.activity.removePlayer(firstSplit[2]);
+                                        }
+                                    });
+                                }
+                            }
+
+                            if (fromServer.startsWith("reload:")) {
+                                String[] firstSplit = fromServer.split(":");
+                                append(firstSplit[1] + " reloaded this round");
+                                Player p = getPlayer(firstSplit[1]);
+                                p.setShots(p.getShots()+1);
+                                p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+                            }
 
                             if (fromServer.startsWith("shot:")) {
                                 String[] firstSplit = fromServer.split(":");
-                                dissableButtons(null , "You have been shot by: "+ firstSplit[1]);
+                                disableButtons(null, "You have been shot by: " + firstSplit[1]);
                             }
 
                             if (fromServer.startsWith("close")) {
                                 clientSocket.close();
                                 append("You have been disconnected from the server!");
-                                disconnect();
+                                disconnected();
                                 return;
                             }
                             if (fromServer.startsWith("connected")) {
@@ -137,7 +184,16 @@ public class Utils extends ActionBarActivity {
         }).start();
     }
 
-    private static void disconnect() {
+    public static void disconnect() {
+        try {
+            send("close");
+            clientSocket.close();
+            game.activity.finishAndRestart();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void disconnected() {
         append("You have been disconnected from the server!");
         try {
             Thread.sleep(2500);
@@ -147,7 +203,7 @@ public class Utils extends ActionBarActivity {
         game.activity.finishAndRestart();
     }
 
-    private static void append(final String str) {
+    public static void append(final String str) {
 
         game.activity.runOnUiThread(new Runnable() {
             @Override
@@ -160,37 +216,48 @@ public class Utils extends ActionBarActivity {
         });
     }
 
+    public static void setDefaults(String key, String value, Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, value);
+        editor.commit();
+    }
+    public static String getDefaults(String key, Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(key, null);
+    }
+
     public static void enableButtons(final String button, final String str) {
         game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(button!=null) {
+                if (button != null) {
                     switch (button) {
                         case "shoot":
-                            shoot.setBackgroundResource(R.drawable.round_blue_fusster);
+                            shoot.setBackgroundResource(R.drawable.round_left_blue_fusster);
                             shoot.setEnabled(true);
                         case "shield":
-                            shield.setBackgroundResource(R.drawable.round_blue_fusster);
+                            shield.setBackgroundColor(Color.parseColor("#576cc7"));
                             shield.setEnabled(true);
                         case "reload":
-                            reload.setBackgroundResource(R.drawable.round_blue_fusster);
+                            reload.setBackgroundResource(R.drawable.round_right_blue_fusster);
                             reload.setEnabled(true);
                     }
                 } else {
-                        shoot.setBackgroundResource(R.drawable.round_blue_fusster);
-                        shield.setBackgroundResource(R.drawable.round_blue_fusster);
-                        reload.setBackgroundResource(R.drawable.round_blue_fusster);
-                        shoot.setEnabled(true);
-                        shield.setEnabled(true);
-                        reload.setEnabled(true);
-                    }
-                if(str!=null)
+                    shoot.setBackgroundResource(R.drawable.round_left_blue_fusster);
+                    shield.setBackgroundColor(Color.parseColor("#576cc7"));
+                    reload.setBackgroundResource(R.drawable.round_right_blue_fusster);
+                    shoot.setEnabled(true);
+                    shield.setEnabled(true);
+                    reload.setEnabled(true);
+                }
+                if (str != null)
                     append(str);
             }
         });
     }
 
-    public static void dissableButtons(final String button, final String str) {
+    public static void disableButtons(final String button, final String str) {
         game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -200,16 +267,16 @@ public class Utils extends ActionBarActivity {
                             shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
                             shoot.setEnabled(false);
                         case "shield":
-                            shield.setBackgroundColor(Color.parseColor("#6E6E6E"));
+                            shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
                             shield.setEnabled(false);
                         case "reload":
                             reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
                             reload.setEnabled(false);
                     }
                 } else {
-                    shoot.setBackgroundResource(R.drawable.round_up_blue_fusster);
+                    shoot.setBackgroundResource(R.drawable.round_left_grey_fusster);
                     shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
-                    reload.setBackgroundResource(R.drawable.round_down_blue_fusster);
+                    reload.setBackgroundResource(R.drawable.round_right_grey_fusster);
                     shoot.setEnabled(false);
                     shield.setEnabled(false);
                     reload.setEnabled(false);
@@ -232,7 +299,21 @@ public class Utils extends ActionBarActivity {
         return name;
     }
 
-    public static List<String> getPlayers(){
+    public static List<Player> getPlayers(){
         return players;
+    }
+    public static Player getPlayer(String name) {
+        for(Player p:Utils.getPlayers()) {
+            if(p.getName().equals(name))
+                return p;
+        }
+        return null;
+    }
+    public static Player getPlayerByLayoutId(int id) {
+        for(Player p:Utils.getPlayers()) {
+            if(p.playerLayout.getId()==id)
+                return p;
+        }
+        return null;
     }
 }

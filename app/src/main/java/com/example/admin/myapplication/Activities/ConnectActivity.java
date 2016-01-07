@@ -39,7 +39,7 @@ public class ConnectActivity extends Activity {
                 TextView nameField = (TextView) findViewById(R.id.nameField);
                 TextView ipField = (TextView) findViewById(R.id.ipField);
                 try {
-                    Utils.register(InetAddress.getByName(ipField.getText().toString().trim()), 9876, nameField.getText().toString().trim());
+                    Utils.register(InetAddress.getByName(ipField.getText().toString().trim()), 47247, nameField.getText().toString().trim());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -118,7 +118,7 @@ public class ConnectActivity extends Activity {
     private void switchActivity() throws InterruptedException {
         setText("Connected! Heading to game");
         Thread.sleep(2000);
-        startActivity(new Intent(this, inGameActivity.class));
+        startActivity(new Intent(this, game.class));
         finish();
     }
 

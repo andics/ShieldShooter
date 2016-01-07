@@ -48,7 +48,7 @@
         android:layout_alignTop="@+id/textView3"
         android:layout_toRightOf="@+id/textView3"
         android:layout_toEndOf="@+id/textView3"
-        android:text="192.168.20.20" />
+        android:text="213.191.179.135" />
 
     <TextView
         android:layout_width="wrap_content"
