@@ -1,7 +1,10 @@
 package com.example.admin.myapplication.Activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -31,15 +34,27 @@ public class ConnectActivity extends Activity {
         connect = (Button) findViewById(R.id.connectToServerButton);
     }
     public void register(View v) throws InterruptedException {
+        ConnectivityManager m
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(new Utils().hasInternetConnection(m))
+        register();
+        else
+            setText("Please connect to internet!");
+    }
+
+    public void register() {
         connect.setEnabled(false);
         connect.setBackgroundResource(R.drawable.round_very_green_disabled);
         new Thread(new Runnable() {
             @Override
             public void run() {
+                SharedPreferences prefs = getSharedPreferences("settings", Context.MODE_PRIVATE);
+                int port = prefs.getInt("port", 9876);
                 TextView nameField = (TextView) findViewById(R.id.nameField);
                 TextView ipField = (TextView) findViewById(R.id.ipField);
                 try {
-                    Utils.register(InetAddress.getByName(ipField.getText().toString().trim()), 47247, nameField.getText().toString().trim());
+                    Log.e("Port", String.valueOf(port));
+                    Utils.register(InetAddress.getByName(ipField.getText().toString().trim()), port, nameField.getText().toString().trim());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -48,56 +63,56 @@ public class ConnectActivity extends Activity {
         t= new Timer();
         seconds=0;
         secondsRespond= Variables.RESPOND_WAIT;
-                t.scheduleAtFixedRate(new TimerTask() {
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (seconds <= Variables.CONNECTION_WAIT) {
-                                    if (Utils.clientSocket != null && secondsRespond > 0) {
-                                        if (Utils.clientSocket.isConnected() == true) {
-                                            secondsRespond--;
-                                            setText("Connecting..." + secondsRespond + " seconds left");
-                                            Log.e("Connected", "still counting...");
-                                            Log.e("Connected", "true");
-                                            if(Utils.connected) {
-                                                setText("Connected! Heading to game");
-                                                try {
-                                                    t.cancel();
-                                                    switchActivity();
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
+                        if (seconds <= Variables.CONNECTION_WAIT) {
+                            if (Utils.clientSocket != null && secondsRespond > 0) {
+                                if (Utils.clientSocket.isConnected() == true) {
+                                    secondsRespond--;
+                                    setText("Connecting..." + secondsRespond + " seconds left");
+                                    Log.e("Connected", "still counting...");
+                                    Log.e("Connected", "true");
+                                    if(Utils.connected) {
+                                        setText("Connected! Heading to game");
+                                        try {
+                                            t.cancel();
+                                            switchActivity();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
                                         }
-                                        if (secondsRespond == 0) {
-                                            Log.e("soconds", "0");
-                                            setText("Connecting failed");
-                                            connect.setEnabled(true);
-                                            connect.setBackgroundResource(R.drawable.round_very_green);
-                                            try {
-                                                t.cancel();
-                                                Utils.clientSocket.close();
-                                            } catch (IOException e) {
-                                                Log.e("bug", "fail to close the socket on fail");
-                                            }
-                                        }
-                                    } else if (Utils.clientSocket == null) {
-                                        setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
-                                        seconds++;
                                     }
-                                } else {
-                                    t.cancel();
-                                    Log.e("Failed", "Failed");
+                                }
+                                if (secondsRespond == 0) {
+                                    Log.e("soconds", "0");
                                     setText("Connecting failed");
                                     connect.setEnabled(true);
                                     connect.setBackgroundResource(R.drawable.round_very_green);
+                                    try {
+                                        t.cancel();
+                                        Utils.clientSocket.close();
+                                    } catch (IOException e) {
+                                        Log.e("bug", "fail to close the socket on fail");
+                                    }
                                 }
+                            } else if (Utils.clientSocket == null) {
+                                setText("Attempting to connect..." + (Variables.CONNECTION_WAIT - seconds) + " seconds left");
+                                seconds++;
                             }
-                        });
+                        } else {
+                            t.cancel();
+                            Log.e("Failed", "Failed");
+                            setText("Connecting failed");
+                            connect.setEnabled(true);
+                            connect.setBackgroundResource(R.drawable.round_very_green);
+                        }
                     }
-                }, 0, 1000);
+                });
+            }
+        }, 0, 1000);
     }
 
     public void disconnect() {

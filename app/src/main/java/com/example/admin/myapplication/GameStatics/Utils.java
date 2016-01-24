@@ -1,14 +1,19 @@
 package com.example.admin.myapplication.GameStatics;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.admin.myapplication.Activities.ConnectActivity;
 import com.example.admin.myapplication.Activities.game;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
@@ -145,7 +150,10 @@ public class Utils extends ActionBarActivity {
                                     game.activity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            game.activity.removePlayer(firstSplit[2]);
+                                            if(firstSplit[2].equals(name))
+                                                disableButtons(null, "You have been shot by: " + firstSplit[1]);
+                                            else
+                                                game.activity.removePlayer(firstSplit[2]);
                                         }
                                     });
                                 }
@@ -216,15 +224,35 @@ public class Utils extends ActionBarActivity {
         });
     }
 
+    public boolean hasInternetConnection(ConnectivityManager m) {
+        NetworkInfo activeNetworkInfo = m.getActiveNetworkInfo();
+        boolean connected = activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        return connected;
+    }
+
     public static void setDefaults(String key, String value, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(key, value);
         editor.commit();
     }
-    public static String getDefaults(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(key, null);
+    public static int getDefaults(String key, String value, Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(key, Context.MODE_PRIVATE);
+        int keyValue = prefs.getInt(value, 9876);
+        return keyValue;
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 
     public static void enableButtons(final String button, final String str) {

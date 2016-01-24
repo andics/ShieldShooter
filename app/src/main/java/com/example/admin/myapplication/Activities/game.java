@@ -65,7 +65,7 @@ public class game extends Activity {
             super.onDestroy();
             Utils.disconnect();
             Log.e("disconnected", "yey");
-            finish();
+            this.finish();
         }
     public void checkForSDKVersion() {
         int newUiOptions = this.getWindow().getDecorView().getSystemUiVisibility();
@@ -237,18 +237,6 @@ public class game extends Activity {
                 leftMargin+=(getScreenWidth()-PLAYER_WIDTH)/(size-1);
             id++;
         }
-    }
-    public static boolean isNumeric(String str)
-    {
-        try
-        {
-            double d = Double.parseDouble(str);
-        }
-        catch(NumberFormatException nfe)
-        {
-            return false;
-        }
-        return true;
     }
     public int getScreenHeight() {
         Display display = getWindowManager().getDefaultDisplay();

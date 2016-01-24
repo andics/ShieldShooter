@@ -54,7 +54,7 @@ public class Player {
             @Override
             public void run() {
                 shieldsInARow = ShieldsInARow;
-                shotsTextField.setText(String.valueOf(Shots));
+                shieldsTextField.setText(String.valueOf(shieldsInARow));
             }
         });
     }
