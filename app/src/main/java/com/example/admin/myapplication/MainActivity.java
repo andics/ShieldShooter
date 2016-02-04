@@ -1,5 +1,6 @@
 package com.example.admin.myapplication;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.app.ActionBar.LayoutParams;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
@@ -42,6 +47,13 @@ public class MainActivity extends FragmentActivity {
     Timer t;
     Button connect;
     TextView stateField, portSettingsField;
+    PopupWindow popUp;
+    LinearLayout layout;
+    TextView tv;
+    LayoutParams params;
+    LinearLayout mainLayout;
+    ViewPager viewPager;
+    boolean click = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +61,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(new SampleFragmentPagerAdapter(this.getSupportFragmentManager()));
 
         // Give the PagerSlidingTabStrip the ViewPager
@@ -67,6 +79,7 @@ public class MainActivity extends FragmentActivity {
             register();
         else
             setText("Please connect to internet!");
+
     }
 
     public void register() {

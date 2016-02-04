@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.admin.myapplication.GameStatics.Player;
 import com.example.admin.myapplication.GameStatics.Utils;
+import com.example.admin.myapplication.MainActivity;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
@@ -44,7 +45,8 @@ public class game extends Activity {
         private Button shoot;
         public static int shields;
         public static int shots=0;
-        public static boolean isFirstRound=true;
+        public int newUiOptions;
+        public static boolean isFirstRound=true, isFirstResume=true;
         public int PLAYER_WIDTH=128, PLAYER_HEIGHT=50;
         private static RelativeLayout gameContainer;
         private static final String IMAGEVIEW_TAG = "shootButton";
@@ -67,18 +69,24 @@ public class game extends Activity {
             Log.e("disconnected", "yey");
             this.finish();
         }
+        @Override
+        public void onResume() {
+            this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+            super.onResume();
+        }
+
     public void checkForSDKVersion() {
-        int newUiOptions = this.getWindow().getDecorView().getSystemUiVisibility();
-        if (Build.VERSION.SDK_INT >= 14) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
-        if (Build.VERSION.SDK_INT >= 16) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-        }
-        if (Build.VERSION.SDK_INT >= 18) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
-        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+            newUiOptions = this.getWindow().getDecorView().getSystemUiVisibility();
+            if (Build.VERSION.SDK_INT >= 14) {
+                newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            }
+            if (Build.VERSION.SDK_INT >= 16) {
+                newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+            }
+            if (Build.VERSION.SDK_INT >= 18) {
+                newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            }
+            this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
     }
     public void initialize() {
         PLAYER_WIDTH = convertToDps(PLAYER_WIDTH);
@@ -94,6 +102,9 @@ public class game extends Activity {
         Utils.setUnits((TextView) findViewById(R.id.console), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
         shoot.setOnLongClickListener(new MyClickListener());
         disableButtons(null, null);
+        Utils.players.add(new Player("Pesho"));
+        Utils.players.add(new Player("Tosho"));
+        Utils.players.add(new Player("Sasho"));
     }
     public int convertToDps(int dps) {
         final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
@@ -101,10 +112,17 @@ public class game extends Activity {
         return pixels;
     }
     public void newDoRound(View v) {
+        Player p = Utils.getPlayer("Pesho");
+        if(!isFirstRound)
+        p.fadeIn();
         doRound(15);
     }
+    public void killPesho(View v) {
+        Player p = Utils.getPlayer("Pesho");
+            p.setShieldsInARow(2);
+    }
     public void finishAndRestart() {
-        startActivity(new Intent(this,ConnectActivity.class));
+        startActivity(new Intent(this,MainActivity.class));
         finish();
     }
     public void doRound(final int sec) {
@@ -120,13 +138,17 @@ public class game extends Activity {
         secondsTicked=0;
         currentProgress=0;
         if (isFirstRound) {
-            shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
-            shots = Variables.allVariables.get("START_AMMO");
+//            shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+  //          shots = Variables.allVariables.get("START_AMMO");
             isFirstRound = false;
             drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
+            Player p = Utils.getPlayer("Pesho");
+            p.fadeIn();
             shoot.setOnLongClickListener(new MyClickListener());
         }
         t = new Timer();
+        Utils.enableButtons("shoot", null);
+        /*
         if (shields > 0) {
             Utils.enableButtons("shield", null);
         }
@@ -138,6 +160,7 @@ public class game extends Activity {
         }
         setShots(shots);
         setShields(shields);
+        */
         Drawable d = getResources().getDrawable(R.drawable.fusster_color);
         timer.setColor(((ColorDrawable) d).getColor());
         timer.setProgress(currentProgress);
@@ -189,6 +212,8 @@ public class game extends Activity {
     }
 
     public void removePlayer(String str) {
+        Player p = Utils.getPlayer(str);
+        p.fadeOut();
         gameContainer.removeView(Utils.getPlayer(str).getPlayerLayout());
         Utils.players.remove(Utils.getPlayer(str));
     }
@@ -218,21 +243,25 @@ public class game extends Activity {
             View view = inflater.inflate(R.layout.player_layout, null);
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(PLAYER_WIDTH, PLAYER_HEIGHT);
             params.leftMargin = leftMargin;
-            RelativeLayout item = (RelativeLayout) view.findViewById(R.id.container);
+            params.topMargin = 120;
+            final RelativeLayout item = (RelativeLayout) view.findViewById(R.id.container);
             item.setId(id);
 
             TextView shots = (TextView) item.findViewById(R.id.playerShotsTextView);
-            shots.setText(String.valueOf(Variables.allVariables.get("START_AMMO")));
+        //    shots.setText(String.valueOf(Variables.allVariables.get("START_AMMO")));
             TextView shields = (TextView) item.findViewById(R.id.playerShieldsLeftTextView);
-            shields.setText(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW")));
+      //      shields.setText(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW")));
             TextView name = (TextView) item.findViewById(R.id.playerName);
             p.setPlayerLayout(item, shots, shields, name, id);
 
             name.setText(p.getName());
             item.setOnDragListener(new MyDragListener());
             gameContainer.addView(item, params);
-            p.setShots(Integer.parseInt(String.valueOf(Variables.allVariables.get("START_AMMO"))));
-            p.setShieldsInARow(Integer.parseInt(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"))));
+            item.setAlpha(0f);
+            p.fadeIn();
+            Log.e("fk", "android");
+//            p.setShots(Integer.parseInt(String.valueOf(Variables.allVariables.get("START_AMMO"))));
+  //          p.setShieldsInARow(Integer.parseInt(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"))));
             if(size!=1)
                 leftMargin+=(getScreenWidth()-PLAYER_WIDTH)/(size-1);
             id++;

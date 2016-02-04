@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.admin.myapplication.Activities.ConnectActivity;
 import com.example.admin.myapplication.Activities.game;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
@@ -133,29 +132,36 @@ public class Utils extends ActionBarActivity {
                             }
                             if (fromServer.startsWith("shoot:")) {
                                 final String[] firstSplit = fromServer.split(":");
-                                if(!firstSplit[1].equals(getName())) {
+                                if (!firstSplit[1].equals(getName())) {
                                     Player p = getPlayer(firstSplit[1]);
                                     p.setShots(p.getShots() - 1);
                                     p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
                                 } else {
                                     append("You shot" + firstSplit[2]);
                                 }
-                                if(firstSplit[3].equals("fail")) {
+                                if (firstSplit[3].equals("fail")) {
                                     Log.e("fail", "fail");
                                     append(firstSplit[1] + " tried to shoot " + firstSplit[2] + ", but " + firstSplit[2] + " defended");
-                                } else if(firstSplit[3].equals("success")) {
+                                } else if (firstSplit[3].equals("success")) {
                                     Log.e("success", firstSplit[2]);
                                     append(firstSplit[1] + " shot " + firstSplit[2]);
-                                  //  if()
-                                    game.activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(firstSplit[2].equals(name))
+                                    //  if()
+                                    if (firstSplit[2].equals(name)) {
+                                        game.activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
                                                 disableButtons(null, "You have been shot by: " + firstSplit[1]);
-                                            else
+                                                Log.e("ded", "son");
+                                            }
+                                        });
+                                    } else {
+                                        game.activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
                                                 game.activity.removePlayer(firstSplit[2]);
-                                        }
-                                    });
+                                            }
+                                        });
+                                    }
                                 }
                             }
 
