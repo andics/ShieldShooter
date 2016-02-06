@@ -8,28 +8,17 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.admin.myapplication.Activities.ConnectActivity"
     android:background="#ffffff">
-    <Button
-        android:text="Connect"
-        android:textColor="#FFFFFF"
-        android:textSize="30sp"
-
-        android:layout_width="270dp"
-        android:layout_height="60dp"
-        android:background="@drawable/round_very_green"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/connectToServerButton"
-        android:onClick="register" />
 
     <at.markushi.ui.CircleButton
         android:layout_width="100dip"
         android:layout_height="100dip"
-        android:src="@drawable/wifi_64"
-        app:cb_color="#99CC00"
+        android:src="@drawable/wifi_65"
+        app:cb_color="#FF55A3CD"
         app:cb_pressedRingWidth="8dip"
-        android:layout_alignTop="@+id/stateText"
-        android:layout_centerHorizontal="true"
-        android:onClick="register" />
+        android:id="@+id/connectToServerButton"
+        android:onClick="register"
+        android:layout_above="@+id/stateText"
+        android:layout_centerInParent = "true" />
 
     <EditText
         android:layout_width="wrap_content"

@@ -18,7 +18,7 @@ import java.util.TimerTask;
 
 import static com.example.admin.myapplication.GameStatics.Utils.*;
 
-
+//THIS ACTIVITY IS NEVER USED! Contains some useful code tough
 public class inGameActivity extends Activity {
     private int shields;
     public int shots;

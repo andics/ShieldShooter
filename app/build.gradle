@@ -34,5 +34,6 @@ dependencies {
     compile ("com.android.support:design:22.2.0")
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'com.github.markushi:circlebutton:1.1'
+    compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.mikhaellopez:circularprogressbar:1.0.1'
 }

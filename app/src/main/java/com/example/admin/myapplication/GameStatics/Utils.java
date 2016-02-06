@@ -9,7 +9,11 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,16 +30,21 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Utils extends ActionBarActivity {
 
     private static InetAddress ip;
     private static int port;
+    private static int round=1;
+    private static int wins=0;
+    private static int secondsTicked=0;
 
     private static String name;
     public static List<Player> players = new ArrayList<>();
 
-    private static TextView console, shotsCurrentText, maxShotsText, shieldsLeftText;
+    private static TextView console, shotsCurrentText, maxShotsText, shieldsLeftText, gameStateText, winsText;
 
     private static Button shoot;
     private static Button shield;
@@ -109,17 +118,55 @@ public class Utils extends ActionBarActivity {
                                 Log.e(secondSplit[0], secondSplit[1].trim());
                             }
 
+                            if(fromServer.startsWith("gameOver:")) {
+                                final String[] firstSplit = fromServer.split(":");
+                                if(firstSplit[1].equals(name)) {
+                                    state("You won the game with " + String.valueOf(wins) + " wins. Going back to main screen");
+                                    game g = new game();
+                                    g.finishAndRestart();
+                                }
+                            }
+
+                            if (fromServer.startsWith("winner:")) {
+                                final String[] firstSplit = fromServer.split(":");
+                                if(firstSplit[1].equals(name)) {
+                                    state("You won the round, waiting for next");
+                                    wins++;
+                                    winsText.setText(String.valueOf(wins));
+                                } else {
+                                    Player p = getPlayer(firstSplit[1]);
+                                    p.setWins(Integer.parseInt(firstSplit[2]));
+                                    state(firstSplit[1] + " won the round, waiting for next");
+                                }
+                                game g = new game();
+                                g.restartGame();
+                            }
+
+                            if (fromServer.startsWith("disc:")) {
+                                final String[] firstSplit = fromServer.split(":");
+                                game.activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        game.activity.removePlayer(firstSplit[1]);
+                                    }
+                                });
+                                state(firstSplit[1] + " disconnected from the game. Reason: " + firstSplit[2]);
+                            }
+
                             if (fromServer.startsWith("msg:")) {
                                 String[] split = fromServer.split(":");
                                 if (split[1].trim().equals("newRound")) {
                                     Log.e("newRound","mhm");
                                     game.activity.runOnUiThread(new Runnable() {
-                                           @Override
-                                       public void run() {
-                                               game.activity.doRound(Variables.allVariables.get("ROUND_DELAY"));
-                                                }
-                                            });
+                                        @Override
+                                        public void run() {
+                                            game.activity.doRound(Variables.allVariables.get("ROUND_DELAY"));
+                                        }
+                                    });
+                                    Utils.append("-End of " + String.valueOf(round) + " round-");
                                     Utils.append("Starting next round");
+                                    Utils.state("A new round in progress...");
+                                    round++;
                                 } else {
                                     Utils.append(split[1]);
                                 }
@@ -150,7 +197,8 @@ public class Utils extends ActionBarActivity {
                                         game.activity.runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                disableButtons(null, "You have been shot by: " + firstSplit[1]);
+                                                disableButtons(null, null);
+                                                Utils.state("You have been shot by: " + firstSplit[1] + " and now you're spectating");
                                                 Log.e("ded", "son");
                                             }
                                         });
@@ -222,18 +270,100 @@ public class Utils extends ActionBarActivity {
         game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-        /*        Spannable word = new SpannableString("Your message");
-                word.setSpan(new ForegroundColorSpan(Color.BLUE), 0, word.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                console.colosetSpan(new ForegroundColorSpan(Color.RED), 0, 5, 0); */
                 console.append("\n" + str + "\n");
             }
         });
+    }
+
+    public static void state(final String str) {
+        secondsTicked=0;
+        final Timer t = new Timer();
+                t.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        game.activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(secondsTicked<=2) {
+                                    secondsTicked++;
+                                } else {
+                                    gameStateText.setText(str);
+                                    t.cancel();
+                                }
+                            }
+                        });
+                    }
+                }, 0, 1000);
     }
 
     public boolean hasInternetConnection(ConnectivityManager m) {
         NetworkInfo activeNetworkInfo = m.getActiveNetworkInfo();
         boolean connected = activeNetworkInfo != null && activeNetworkInfo.isConnected();
         return connected;
+    }
+
+    public static void scaleAnimationSlow(final View v) {
+        final ScaleAnimation scaleUp, scaleDown;
+        scaleUp = new ScaleAnimation(1, 1.2f, 1, 1.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleUp.setDuration(500);
+        scaleDown = new ScaleAnimation(1.2f, 1, 1.2f, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleDown.setDuration(500);
+        game.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            scaleUp.setAnimationListener(new Animation.AnimationListener() {
+
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.startAnimation(scaleDown);
+            }
+        });
+                v.startAnimation(scaleUp);
+        }
+    });
+    }
+
+    public static void scaleAnimationFast(final View v) {
+        final ScaleAnimation scaleUpFaster, scaleDownFaster;
+        scaleUpFaster = new ScaleAnimation(1, 1.7f, 1, 1.7f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleUpFaster.setDuration(200);
+        scaleDownFaster = new ScaleAnimation(1.7f, 1, 1.7f, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleDownFaster.setDuration(200);
+        game.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scaleUpFaster.setAnimationListener(new Animation.AnimationListener() {
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // TODO Auto-generated method stub
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        v.startAnimation(scaleDownFaster);
+                    }
+                });
+                v.startAnimation(scaleUpFaster);
+            }
+        });
     }
 
     public static void setDefaults(String key, String value, Context context) {
@@ -321,9 +451,11 @@ public class Utils extends ActionBarActivity {
         });
     }
 
-    public static void setUnits(TextView console, Button shoot, Button shield, Button reload){
+    public static void setUnits(TextView console, TextView gameStateText, TextView wins, Button shoot, Button shield, Button reload){
         console.setText("");
         Utils.console = console;
+        Utils.winsText = wins;
+        Utils.gameStateText = gameStateText;
         Utils.shoot = shoot;
         Utils.shield = shield;
         Utils.reload = reload;

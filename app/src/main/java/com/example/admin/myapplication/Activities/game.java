@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Display;
 import android.view.DragEvent;
@@ -32,6 +33,8 @@ import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,14 +50,14 @@ public class game extends Activity {
         public static int shots=0;
         public int newUiOptions;
         public static boolean isFirstRound=true, isFirstResume=true;
-        public int PLAYER_WIDTH=128, PLAYER_HEIGHT=50;
+        public int PLAYER_WIDTH=128, PLAYER_HEIGHT=85;
         private static RelativeLayout gameContainer;
         private static final String IMAGEVIEW_TAG = "shootButton";
         int secondsTicked, currentProgress;
         CircularProgressBar timer;
         Timer t;
         public static game activity;
-        TextView timeLeft, shieldsLeftText, shotsCurrentText;
+        TextView timeLeft, shieldsLeftText, shotsCurrentText, gameStateText;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -96,10 +99,15 @@ public class game extends Activity {
         shoot = (Button) findViewById(R.id.shootButton);
         shotsCurrentText = (TextView) findViewById(R.id.shotsTextField);
         shieldsLeftText = (TextView) findViewById(R.id.shieldsTextField);
+        gameStateText = (TextView) findViewById(R.id.gameStateText);
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/gothic.TTF");
+        gameStateText.setTypeface(face);
         gameContainer = (RelativeLayout) findViewById(R.id.game);
         shoot.setTag(IMAGEVIEW_TAG);
         activity = this;
-        Utils.setUnits((TextView) findViewById(R.id.console), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
+        TextView c = (TextView) findViewById(R.id.console);
+        c.setMovementMethod(new ScrollingMovementMethod());
+        Utils.setUnits((TextView) findViewById(R.id.console), (TextView) findViewById(R.id.gameStateText), (TextView) findViewById(R.id.wins), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
         shoot.setOnLongClickListener(new MyClickListener());
         disableButtons(null, null);
         Utils.players.add(new Player("Pesho"));
@@ -116,13 +124,27 @@ public class game extends Activity {
         if(!isFirstRound)
         p.fadeIn();
         doRound(15);
+        Utils.state("Testing");
     }
     public void killPesho(View v) {
         Player p = Utils.getPlayer("Pesho");
             p.setShieldsInARow(2);
+        Utils.append("Hello");
+        Utils.state("Hello " + String.valueOf(R.id.src_in));
+        Log.e("kill", "pesho");
+        Utils.state("Hello from the other siiiide");
+        p.setWins(2);
+    }
+    public void restartGame() {
+        setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+        setShots(Variables.allVariables.get("START_AMMO"));
+        for(Player p: Utils.players) {
+            setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+            setShots(Variables.allVariables.get("START_AMMO"));
+        }
     }
     public void finishAndRestart() {
-        startActivity(new Intent(this,MainActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
         finish();
     }
     public void doRound(final int sec) {
@@ -220,6 +242,11 @@ public class game extends Activity {
     public void restartShields() {
         shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
     }
+    public void exit(View v) {
+        Utils.send("exit");
+        Utils.disconnect();
+        this.finish();
+    }
     public void setShots(int shots) {
         game.shots =shots;
         shotsCurrentText.setText(String.valueOf(game.shots));
@@ -252,7 +279,9 @@ public class game extends Activity {
             TextView shields = (TextView) item.findViewById(R.id.playerShieldsLeftTextView);
       //      shields.setText(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW")));
             TextView name = (TextView) item.findViewById(R.id.playerName);
-            p.setPlayerLayout(item, shots, shields, name, id);
+            TextView wins = (TextView) item.findViewById(R.id.playerVictoriesTextView);
+            wins.setText(String.valueOf(0));
+            p.setPlayerLayout(item, shots, shields, name, wins, id);
 
             name.setText(p.getName());
             item.setOnDragListener(new MyDragListener());
@@ -340,7 +369,7 @@ public class game extends Activity {
                     if(getPlayerByLayoutId(v.getId())!=null) {
                         //change the text
                         Player p = getPlayerByLayoutId(v.getId());
-                        Utils.append("The item is dropped");
+                        Utils.append("You tried to shoot " + p.getName());
                         Context context = getApplicationContext();
                         shoot(p.getName());
                         Toast.makeText(context, "You tried to shoot: " + p.getName(),

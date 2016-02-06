@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.content.Context;
@@ -41,11 +42,13 @@ import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import at.markushi.ui.CircleButton;
+
 public class MainActivity extends FragmentActivity {
 
     int seconds, secondsRespond;
     Timer t;
-    Button connect;
+    CircleButton connect;
     TextView stateField, portSettingsField;
     PopupWindow popUp;
     LinearLayout layout;
@@ -69,7 +72,7 @@ public class MainActivity extends FragmentActivity {
         // Attach the view pager to the tab strip
         tabsStrip.setViewPager(viewPager);
         stateField = (TextView) findViewById(R.id.stateText);
-        connect = (Button) findViewById(R.id.connectToServerButton);
+        connect = (CircleButton) findViewById(R.id.connectToServerButton);
     }
 
     public void register(View v) throws InterruptedException {
@@ -84,7 +87,7 @@ public class MainActivity extends FragmentActivity {
 
     public void register() {
         connect.setEnabled(false);
-        connect.setBackgroundResource(R.drawable.round_very_green_disabled);
+        connect.setColor(Color.parseColor("#FF344869"));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -146,7 +149,7 @@ public class MainActivity extends FragmentActivity {
                             Log.e("Failed", "Failed");
                             setText("Connecting failed");
                             connect.setEnabled(true);
-                            connect.setBackgroundResource(R.drawable.round_very_green);
+                            connect.setColor(Color.parseColor("#FF55A3CD"));
                         }
                     }
                 });
@@ -282,7 +285,7 @@ public class MainActivity extends FragmentActivity {
             if(mPage==1) {
                 View view = inflater.inflate(R.layout.fragment_a_game, container, false);
                 stateField = (TextView) view.findViewById(R.id.stateText);
-                connect = (Button) view.findViewById(R.id.connectToServerButton);
+                connect = (CircleButton) view.findViewById(R.id.connectToServerButton);
                 return view;
             } else {
                 View view = inflater.inflate(R.layout.fragment_b_settings, container, false);
