@@ -110,9 +110,9 @@ public class game extends Activity {
         Utils.setUnits((TextView) findViewById(R.id.console), (TextView) findViewById(R.id.gameStateText), (TextView) findViewById(R.id.wins), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
         shoot.setOnLongClickListener(new MyClickListener());
         disableButtons(null, null);
-        Utils.players.add(new Player("Pesho"));
-        Utils.players.add(new Player("Tosho"));
-        Utils.players.add(new Player("Sasho"));
+     //   Utils.players.add(new Player("Pesho"));
+     //   Utils.players.add(new Player("Tosho"));
+     //   Utils.players.add(new Player("Sasho"));
     }
     public int convertToDps(int dps) {
         final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
@@ -150,8 +150,6 @@ public class game extends Activity {
     public void doRound(final int sec) {
 
         //Drawing player blocks
-      //  drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
-        //
         try {
             t.cancel();
         } catch (Exception e) {
@@ -160,8 +158,8 @@ public class game extends Activity {
         secondsTicked=0;
         currentProgress=0;
         if (isFirstRound) {
-//            shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
-  //          shots = Variables.allVariables.get("START_AMMO");
+            shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+            shots = Variables.allVariables.get("START_AMMO");
             isFirstRound = false;
             drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
             Player p = Utils.getPlayer("Pesho");
@@ -170,7 +168,7 @@ public class game extends Activity {
         }
         t = new Timer();
         Utils.enableButtons("shoot", null);
-        /*
+
         if (shields > 0) {
             Utils.enableButtons("shield", null);
         }
@@ -182,7 +180,7 @@ public class game extends Activity {
         }
         setShots(shots);
         setShields(shields);
-        */
+
         Drawable d = getResources().getDrawable(R.drawable.fusster_color);
         timer.setColor(((ColorDrawable) d).getColor());
         timer.setProgress(currentProgress);
@@ -275,9 +273,9 @@ public class game extends Activity {
             item.setId(id);
 
             TextView shots = (TextView) item.findViewById(R.id.playerShotsTextView);
-        //    shots.setText(String.valueOf(Variables.allVariables.get("START_AMMO")));
+            shots.setText(String.valueOf(Variables.allVariables.get("START_AMMO")));
             TextView shields = (TextView) item.findViewById(R.id.playerShieldsLeftTextView);
-      //      shields.setText(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW")));
+            shields.setText(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW")));
             TextView name = (TextView) item.findViewById(R.id.playerName);
             TextView wins = (TextView) item.findViewById(R.id.playerVictoriesTextView);
             wins.setText(String.valueOf(0));
@@ -289,8 +287,8 @@ public class game extends Activity {
             item.setAlpha(0f);
             p.fadeIn();
             Log.e("fk", "android");
-//            p.setShots(Integer.parseInt(String.valueOf(Variables.allVariables.get("START_AMMO"))));
-  //          p.setShieldsInARow(Integer.parseInt(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"))));
+            p.setShots(Integer.parseInt(String.valueOf(Variables.allVariables.get("START_AMMO"))));
+            p.setShieldsInARow(Integer.parseInt(String.valueOf(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"))));
             if(size!=1)
                 leftMargin+=(getScreenWidth()-PLAYER_WIDTH)/(size-1);
             id++;
