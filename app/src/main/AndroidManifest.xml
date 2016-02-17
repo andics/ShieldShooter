@@ -24,12 +24,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.inGameActivity"
-            android:label=""
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" >
-        </activity>
-        <activity
             android:name=".Activities.TargetsActivity"
             android:label="Choose your target"
             android:screenOrientation="portrait" >

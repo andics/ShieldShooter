@@ -53,7 +53,7 @@ public class game extends Activity {
         public int PLAYER_WIDTH=128, PLAYER_HEIGHT=85;
         private static RelativeLayout gameContainer;
         private static final String IMAGEVIEW_TAG = "shootButton";
-        int secondsTicked, currentProgress;
+        public int secondsTicked, currentProgress;
         CircularProgressBar timer;
         Timer t;
         public static game activity;
@@ -68,9 +68,13 @@ public class game extends Activity {
         @Override
         public void onDestroy() {
             super.onDestroy();
+            Utils.send("close");
             Utils.disconnect();
-            Log.e("disconnected", "yey");
             this.finish();
+        }
+        @Override
+        public void onBackPressed() {
+
         }
         @Override
         public void onResume() {
@@ -110,9 +114,6 @@ public class game extends Activity {
         Utils.setUnits((TextView) findViewById(R.id.console), (TextView) findViewById(R.id.gameStateText), (TextView) findViewById(R.id.wins), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
         shoot.setOnLongClickListener(new MyClickListener());
         disableButtons(null, null);
-     //   Utils.players.add(new Player("Pesho"));
-     //   Utils.players.add(new Player("Tosho"));
-     //   Utils.players.add(new Player("Sasho"));
     }
     public int convertToDps(int dps) {
         final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
@@ -139,6 +140,7 @@ public class game extends Activity {
         setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
         setShots(Variables.allVariables.get("START_AMMO"));
         for(Player p: Utils.players) {
+            p.fadeIn();
             setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
             setShots(Variables.allVariables.get("START_AMMO"));
         }
@@ -162,12 +164,9 @@ public class game extends Activity {
             shots = Variables.allVariables.get("START_AMMO");
             isFirstRound = false;
             drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
-            Player p = Utils.getPlayer("Pesho");
-            p.fadeIn();
             shoot.setOnLongClickListener(new MyClickListener());
         }
         t = new Timer();
-        Utils.enableButtons("shoot", null);
 
         if (shields > 0) {
             Utils.enableButtons("shield", null);
@@ -234,9 +233,14 @@ public class game extends Activity {
     public void removePlayer(String str) {
         Player p = Utils.getPlayer(str);
         p.fadeOut();
+    }
+    public void disconnectPlayer(String str) {
+        Player p = Utils.getPlayer(str);
+        p.fadeOut();
         gameContainer.removeView(Utils.getPlayer(str).getPlayerLayout());
         Utils.players.remove(Utils.getPlayer(str));
     }
+
     public void restartShields() {
         shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
     }
@@ -256,8 +260,14 @@ public class game extends Activity {
     public void endTurn(String str) {
         Utils.disableButtons(null, str);
         Drawable d = getResources().getDrawable(R.drawable.fusster_color_disabled);
-        timer.setColor(((ColorDrawable)d).getColor());
+        timer.setColor(((ColorDrawable) d).getColor());
     }
+
+    public void interruptTimer() {
+        currentProgress=100;
+        secondsTicked=Variables.allVariables.get("ROUND_DELAY");
+    }
+
     public synchronized void drawPlayersBlocks(List<Player> players, int size) {
         //Spaghetti code incoming
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);

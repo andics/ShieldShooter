@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import com.example.admin.myapplication.Activities.game;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,6 +43,7 @@ public class Utils extends ActionBarActivity {
     private static int round=1;
     private static int wins=0;
     private static int secondsTicked=0;
+    private static int currentProgress=0;
 
     private static String name;
     public static List<Player> players = new ArrayList<>();
@@ -132,22 +136,33 @@ public class Utils extends ActionBarActivity {
                                 if(firstSplit[1].equals(name)) {
                                     state("You won the round, waiting for next");
                                     wins++;
-                                    winsText.setText(String.valueOf(wins));
+                                    game.activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            winsText.setText(String.valueOf(wins));
+                                        }
+                                    });
                                 } else {
                                     Player p = getPlayer(firstSplit[1]);
                                     p.setWins(Integer.parseInt(firstSplit[2]));
                                     state(firstSplit[1] + " won the round, waiting for next");
                                 }
-                                game g = new game();
-                                g.restartGame();
+                                game.activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        game.activity.restartGame();
+                                        game.activity.interruptTimer();
+                                    }
+                                });
                             }
 
                             if (fromServer.startsWith("disc:")) {
                                 final String[] firstSplit = fromServer.split(":");
+                                if(getPlayer(firstSplit[1])!=null)
                                 game.activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        game.activity.removePlayer(firstSplit[1]);
+                                        game.activity.disconnectPlayer(firstSplit[1]);
                                     }
                                 });
                                 state(firstSplit[1] + " disconnected from the game. Reason: " + firstSplit[2]);
@@ -167,7 +182,17 @@ public class Utils extends ActionBarActivity {
                                     Utils.append("Starting next round");
                                     Utils.state("A new round in progress...");
                                     round++;
-                                } else {
+                                }
+                                if (split[1].trim().equals("newGame")) {
+                                    if(!game.isFirstRound)
+                                    game.activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            game.activity.restartGame();
+                                        }
+                                    });
+                                    round=0;
+                                }else {
                                     Utils.append(split[1]);
                                 }
                             }
@@ -177,22 +202,28 @@ public class Utils extends ActionBarActivity {
                                 Player p = getPlayer(firstSplit[1]);
                                 p.setShieldsInARow(Integer.parseInt(firstSplit[2]));
                             }
+                            if (fromServer.startsWith("waitPlayers:")) {
+                                String[] firstSplit = fromServer.split(":");
+                                setUpATimer(Integer.valueOf(firstSplit[1]), "Starting a game");
+                                Log.e("wait", "players");
+                                state("Waiting for additional players to connect");
+                            }
                             if (fromServer.startsWith("shoot:")) {
                                 final String[] firstSplit = fromServer.split(":");
                                 if (!firstSplit[1].equals(getName())) {
                                     Player p = getPlayer(firstSplit[1]);
                                     p.setShots(p.getShots() - 1);
                                     p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
-                                } else {
-                                    append("You shot" + firstSplit[2]);
                                 }
                                 if (firstSplit[3].equals("fail")) {
                                     Log.e("fail", "fail");
                                     append(firstSplit[1] + " tried to shoot " + firstSplit[2] + ", but " + firstSplit[2] + " defended");
                                 } else if (firstSplit[3].equals("success")) {
                                     Log.e("success", firstSplit[2]);
-                                    append(firstSplit[1] + " shot " + firstSplit[2]);
-                                    //  if()
+                                    if(firstSplit[1].equals(getName()))
+                                        append("You" + " shot " + firstSplit[2]);
+                                    else
+                                        append(firstSplit[1] + " shot " + firstSplit[2]);
                                     if (firstSplit[2].equals(name)) {
                                         game.activity.runOnUiThread(new Runnable() {
                                             @Override
@@ -217,7 +248,7 @@ public class Utils extends ActionBarActivity {
                                 String[] firstSplit = fromServer.split(":");
                                 append(firstSplit[1] + " reloaded this round");
                                 Player p = getPlayer(firstSplit[1]);
-                                p.setShots(p.getShots()+1);
+                                p.setShots(Integer.parseInt(firstSplit[2]));
                                 p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
                             }
 
@@ -239,6 +270,7 @@ public class Utils extends ActionBarActivity {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                        if(clientSocket.isConnected())
                         disconnect();
                     }
                 }
@@ -248,7 +280,6 @@ public class Utils extends ActionBarActivity {
 
     public static void disconnect() {
         try {
-            send("close");
             clientSocket.close();
             game.activity.finishAndRestart();
         } catch (IOException e) {
@@ -265,6 +296,34 @@ public class Utils extends ActionBarActivity {
         game.activity.finishAndRestart();
     }
 
+    public static void setUpATimer(final int sec, final String str) {
+        final Timer t = new Timer();
+        final CircularProgressBar timer = (CircularProgressBar) game.activity.findViewById(R.id.timer);
+        final TextView timeLeft = (TextView) game.activity.findViewById(R.id.timerText);
+        final Drawable d = game.activity.getResources().getDrawable(R.drawable.fusster_green);
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                game.activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (secondsTicked <= sec) {
+                            timer.setColor(((ColorDrawable) d).getColor());
+                            timeLeft.setText(Integer.toString(sec - secondsTicked));
+                            currentProgress += 100 / sec;
+                            timer.setProgress(currentProgress);
+                            secondsTicked++;
+                        } else {
+                            timeLeft.setText(str);
+                            secondsTicked=0;
+                            t.cancel();
+                        }
+                    }
+                });
+            }
+        }, 0, 1000);
+    }
+
     public static void append(final String str) {
 
         game.activity.runOnUiThread(new Runnable() {
@@ -276,24 +335,12 @@ public class Utils extends ActionBarActivity {
     }
 
     public static void state(final String str) {
-        secondsTicked=0;
-        final Timer t = new Timer();
-                t.scheduleAtFixedRate(new TimerTask() {
-                    @Override
-                    public void run() {
-                        game.activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(secondsTicked<=2) {
-                                    secondsTicked++;
-                                } else {
-                                    gameStateText.setText(str);
-                                    t.cancel();
-                                }
-                            }
-                        });
-                    }
-                }, 0, 1000);
+        game.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            gameStateText.setText(str);
+            }
+        });
     }
 
     public boolean hasInternetConnection(ConnectivityManager m) {

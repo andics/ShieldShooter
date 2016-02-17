@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.admin.myapplication.Activities.game;
 import com.example.admin.myapplication.R;
+import com.example.admin.myapplication.Variables.Variables;
 
 import org.w3c.dom.Text;
 
@@ -35,8 +36,8 @@ public class Player {
         this.nameField = name;
         this.winsField = wins;
         this.layoutId = layoutId;
-  //      this.Shots= Variables.allVariables.get("START_AMMO");
-    //    this.shieldsInARow = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+        this.Shots= Variables.allVariables.get("START_AMMO");
+        this.shieldsInARow = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
     }
 
     public void fadeOut() {
