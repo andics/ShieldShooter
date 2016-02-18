@@ -57,7 +57,7 @@ public class game extends Activity {
         CircularProgressBar timer;
         Timer t;
         public static game activity;
-        TextView timeLeft, shieldsLeftText, shotsCurrentText, gameStateText;
+        TextView timeLeft, shieldsLeftText, shotsCurrentText, gameStateText, nameText;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -104,8 +104,10 @@ public class game extends Activity {
         shotsCurrentText = (TextView) findViewById(R.id.shotsTextField);
         shieldsLeftText = (TextView) findViewById(R.id.shieldsTextField);
         gameStateText = (TextView) findViewById(R.id.gameStateText);
+        nameText = (TextView) findViewById(R.id.yourNameText);
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/gothic.TTF");
         gameStateText.setTypeface(face);
+        nameText.setTypeface(face);
         gameContainer = (RelativeLayout) findViewById(R.id.game);
         shoot.setTag(IMAGEVIEW_TAG);
         activity = this;
@@ -140,9 +142,9 @@ public class game extends Activity {
         setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
         setShots(Variables.allVariables.get("START_AMMO"));
         for(Player p: Utils.players) {
+            p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+            p.setShots(Variables.allVariables.get("START_AMMO"));
             p.fadeIn();
-            setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
-            setShots(Variables.allVariables.get("START_AMMO"));
         }
     }
     public void finishAndRestart() {
@@ -164,6 +166,7 @@ public class game extends Activity {
             shots = Variables.allVariables.get("START_AMMO");
             isFirstRound = false;
             drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
+            nameText.setText("Playing as " + Utils.getName());
             shoot.setOnLongClickListener(new MyClickListener());
         }
         t = new Timer();

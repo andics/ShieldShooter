@@ -30,7 +30,6 @@ public class Player {
 
     public void setPlayerLayout(RelativeLayout playerLayout, TextView shots, TextView shields, TextView name, TextView wins, int layoutId) {
         this.playerLayout = playerLayout;
-   //     this.playerLayout.setAnimationStyle(R.style.Animation);
         this.shotsTextField = shots;
         this.shieldsTextField = shields;
         this.nameField = name;
@@ -99,6 +98,18 @@ public class Player {
                 final ImageView cupImage = (ImageView) playerLayout.findViewById(R.id.imageView5);
                 Utils.scaleAnimationFast(cupImage);
                 winsField.setText(String.valueOf(wins));
+            }
+        });
+    }
+    public int getWins() {
+        return wins;
+    }
+    public void restartShields() {
+        game.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+        shieldsInARow  =  Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+        shieldsTextField.setText(String.valueOf(shieldsInARow));
             }
         });
     }

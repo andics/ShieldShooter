@@ -131,29 +131,44 @@ public class Utils extends ActionBarActivity {
                                 }
                             }
 
+                            if (fromServer.startsWith("noWinner")) {
+                                    game.activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            game.activity.restartGame();
+                                            game.activity.interruptTimer();
+                                            state("No winners this round, waiting for next");
+                                        }
+                                    });
+                                }
+
                             if (fromServer.startsWith("winner:")) {
                                 final String[] firstSplit = fromServer.split(":");
                                 if(firstSplit[1].equals(name)) {
-                                    state("You won the round, waiting for next");
-                                    wins++;
                                     game.activity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             winsText.setText(String.valueOf(wins));
+                                            Log.e("restart", "restart");
+                                            game.activity.restartGame();
+                                            game.activity.interruptTimer();
+                                            state("You won the round, waiting for next");
                                         }
                                     });
+                                    wins++;
                                 } else {
                                     Player p = getPlayer(firstSplit[1]);
-                                    p.setWins(Integer.parseInt(firstSplit[2]));
+                                    p.setWins(p.getWins()+1);
+                                    game.activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Log.e("restart", "restart");
+                                            game.activity.restartGame();
+                                            game.activity.interruptTimer();
+                                        }
+                                    });
                                     state(firstSplit[1] + " won the round, waiting for next");
                                 }
-                                game.activity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        game.activity.restartGame();
-                                        game.activity.interruptTimer();
-                                    }
-                                });
                             }
 
                             if (fromServer.startsWith("disc:")) {
@@ -171,7 +186,6 @@ public class Utils extends ActionBarActivity {
                             if (fromServer.startsWith("msg:")) {
                                 String[] split = fromServer.split(":");
                                 if (split[1].trim().equals("newRound")) {
-                                    Log.e("newRound","mhm");
                                     game.activity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -192,7 +206,7 @@ public class Utils extends ActionBarActivity {
                                         }
                                     });
                                     round=0;
-                                }else {
+                                } else if(!split[1].trim().equals("newGame") && !split[1].trim().equals("newRound")) {
                                     Utils.append(split[1]);
                                 }
                             }
@@ -213,7 +227,7 @@ public class Utils extends ActionBarActivity {
                                 if (!firstSplit[1].equals(getName())) {
                                     Player p = getPlayer(firstSplit[1]);
                                     p.setShots(p.getShots() - 1);
-                                    p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+                                    p.restartShields();
                                 }
                                 if (firstSplit[3].equals("fail")) {
                                     Log.e("fail", "fail");
@@ -249,7 +263,7 @@ public class Utils extends ActionBarActivity {
                                 append(firstSplit[1] + " reloaded this round");
                                 Player p = getPlayer(firstSplit[1]);
                                 p.setShots(Integer.parseInt(firstSplit[2]));
-                                p.setShieldsInARow(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
+                                p.restartShields();
                             }
 
                             if (fromServer.startsWith("shot:")) {
@@ -314,7 +328,7 @@ public class Utils extends ActionBarActivity {
                             timer.setProgress(currentProgress);
                             secondsTicked++;
                         } else {
-                            timeLeft.setText(str);
+                            state(str);
                             secondsTicked=0;
                             t.cancel();
                         }
