@@ -16,12 +16,11 @@
         android:background="@drawable/round_grey"
         android:textSize="22dp"
         android:layout_alignBottom="@+id/portLabel"
-        android:layout_alignRight="@+id/stateText"
-        android:layout_alignEnd="@+id/stateText"
         android:layout_alignTop="@+id/portLabel"
         android:layout_toRightOf="@+id/portLabel"
-        android:layout_toEndOf="@+id/portLabel"
-        android:inputType="phone" />
+        android:inputType="phone"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -32,18 +31,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="52dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:id="@+id/stateText"
-        android:layout_marginBottom="121dp"
-        android:textColor="#a5afa7"
-        android:textSize="28dp"
-        android:textAlignment="center"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
 
     <ImageButton
         android:text="Save"

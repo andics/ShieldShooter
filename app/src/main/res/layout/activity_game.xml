@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.admin.myapplication.Activities.Game"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#ffffff"
+    android:id="@+id/game">
+
+    <com.mikhaellopez.circularprogressbar.CircularProgressBar
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:background_progressbar_color="#FFCDD2"
+        app:background_progressbar_width="5dp"
+        app:progressbar_color="#F44336"
+        app:progressbar_width="10dp"
+        android:id="@+id/timer"
+        android:layout_marginBottom="62dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/timerText"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:textColor="#5d7c85"
+        android:text="."
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/console"
+        android:layout_alignRight="@+id/timer"
+        android:layout_alignEnd="@+id/timer" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shoot"
+        android:id="@+id/shootButton"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/round_left_blue_fusster"
+        android:layout_toLeftOf="@+id/timer" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shield"
+        android:id="@+id/shieldButton"
+        android:layout_alignParentBottom="true"
+        android:background="#576cc7"
+        android:layout_alignTop="@+id/shootButton"
+        android:layout_toRightOf="@+id/shootButton"
+        android:layout_alignRight="@+id/timer"
+        android:layout_alignEnd="@+id/timer"
+        android:onClick="shield" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reload"
+        android:id="@+id/reloadButton"
+        android:background="@drawable/round_right_blue_fusster"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/shieldButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/timer"
+        android:layout_toEndOf="@+id/timer"
+        android:onClick="reload" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Console"
+        android:id="@+id/console"
+        android:layout_alignTop="@+id/timer"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/timer"
+        android:layout_toStartOf="@+id/timer"
+        android:layout_above="@+id/imageView"
+        android:scrollbars = "vertical"
+        android:maxLines="20"
+        android:gravity="bottom" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/imageView"
+        android:background="@mipmap/bullet_icon"
+        android:layout_above="@+id/reloadButton"
+        android:layout_toLeftOf="@+id/shotsTextField"
+        android:layout_toStartOf="@+id/shotsTextField" />
+
+    <TextView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:text="."
+        android:id="@+id/shotsTextField"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_toLeftOf="@+id/imageView2"
+        android:layout_toStartOf="@+id/imageView2" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/imageView2"
+        android:background="@mipmap/shield_icon"
+        android:layout_above="@+id/reloadButton"
+        android:layout_toLeftOf="@+id/shieldsTextField"
+        android:layout_toStartOf="@+id/shieldsTextField" />
+
+    <TextView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:text="."
+        android:id="@+id/shieldsTextField"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:layout_above="@+id/reloadButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/shootButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"></LinearLayout>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="52dp"
+        android:text="Waiting for a game to start"
+        android:id="@+id/gameStateText"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:autoText="false"
+        android:background="@drawable/round_orange"
+        android:textColor="#000000"
+        android:layout_above="@+id/cupImage"
+        android:layout_toRightOf="@+id/timer"
+        android:layout_toEndOf="@+id/timer" />
+
+    <ImageButton
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/exitButton"
+        android:background="@android:drawable/ic_menu_set_as"
+        android:onClick="exit"
+        android:layout_above="@+id/gameStateText"
+        android:layout_alignRight="@+id/gameStateText"
+        android:layout_alignEnd="@+id/gameStateText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exit"
+        android:id="@+id/exitLabel"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:layout_alignTop="@+id/exitButton"
+        android:layout_toLeftOf="@+id/wins"
+        android:layout_toStartOf="@+id/wins"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentBottom="false"
+        android:layout_marginTop="20dp" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/cupImage"
+        android:background="@mipmap/icon_cup_32"
+        android:layout_alignBottom="@+id/console"
+        android:layout_alignLeft="@+id/shotsTextField"
+        android:layout_alignStart="@+id/shotsTextField" />
+
+    <TextView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:text="."
+        android:id="@+id/wins"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:layout_below="@+id/gameStateText"
+        android:layout_toRightOf="@+id/shotsTextField"
+        android:layout_toEndOf="@+id/shotsTextField" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/yourNameText"
+        android:layout_alignBottom="@+id/imageView"
+        android:layout_below="@+id/console"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/timer"
+        android:layout_toStartOf="@+id/timer"
+        android:textSize="22dp"
+        android:textColor="#000000" />
+
+</RelativeLayout>

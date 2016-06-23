@@ -1,22 +1,17 @@
 package com.example.admin.myapplication.GameStatics;
 
-import android.util.Log;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.admin.myapplication.Activities.game;
+import com.example.admin.myapplication.Activities.Game;
 import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by Genata on 17.12.2015 г..
  */
-public class Player {
+public class Player extends RuntimeException {
     public String name;
     public int Shots;
     public int wins=0;
@@ -69,7 +64,7 @@ public class Player {
         return Shots;
     }
     public void setShieldsInARow(final int ShieldsInARow) {
-        game.activity.runOnUiThread(new Runnable() {
+        Game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 shieldsInARow = ShieldsInARow;
@@ -80,7 +75,7 @@ public class Player {
         });
     }
     public void setShots(final int shots) {
-            game.activity.runOnUiThread(new Runnable() {
+            Game.activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Shots = shots;
@@ -91,7 +86,7 @@ public class Player {
             });
         }
     public void setWins(final int winsNum) {
-        game.activity.runOnUiThread(new Runnable() {
+        Game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 wins = winsNum;
@@ -105,7 +100,7 @@ public class Player {
         return wins;
     }
     public void restartShields() {
-        game.activity.runOnUiThread(new Runnable() {
+        Game.activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
         shieldsInARow  =  Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -26,6 +27,7 @@ import android.view.View.OnDragListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Toast;
 
+import com.example.admin.myapplication.GameStatics.ChooseGameMode;
 import com.example.admin.myapplication.GameStatics.Player;
 import com.example.admin.myapplication.GameStatics.Utils;
 import com.example.admin.myapplication.MainActivity;
@@ -33,8 +35,7 @@ import com.example.admin.myapplication.R;
 import com.example.admin.myapplication.Variables.Variables;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
-import org.w3c.dom.Text;
-
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,27 +44,29 @@ import static com.example.admin.myapplication.GameStatics.Utils.getPlayerByLayou
 import static com.example.admin.myapplication.GameStatics.Utils.send;
 import static com.example.admin.myapplication.GameStatics.Utils.*;
 
-public class game extends Activity {
+public class Game extends Activity {
         /** Called when the activity is first created. */
-        private Button shoot;
+        private Button shoot, shield, reload;
         public static int shields;
         public static int shots=0;
+        public static int wins=0;
         public int newUiOptions;
-        public static boolean isFirstRound=true, isFirstResume=true;
+        public static boolean isFirstRound=true, isFirstResume=true, activityInitialized=false;
         public int PLAYER_WIDTH=128, PLAYER_HEIGHT=85;
         private static RelativeLayout gameContainer;
         private static final String IMAGEVIEW_TAG = "shootButton";
-        public int secondsTicked, currentProgress;
+        private int secondsTicked, currentProgress;
         CircularProgressBar timer;
         Timer t;
-        public static game activity;
-        TextView timeLeft, shieldsLeftText, shotsCurrentText, gameStateText, nameText;
+        public static Game activity;
+        TextView timeLeft, shieldsLeftText, shotsCurrentText, gameStateText, nameText,  winsText;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_game);
             checkForSDKVersion();
             initialize();
+            regIfMatchFound();
         }
         @Override
         public void onDestroy() {
@@ -80,6 +83,24 @@ public class game extends Activity {
         public void onResume() {
             this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
             super.onResume();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            activityInitialized = false;
+            isFirstRound=true;
+            interrupted=false;
+        }
+
+        public static void regIfMatchFound() {
+            if(matchFound)
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        register(foundServerIp, foundServerPort, getName(), null);
+                    }
+                }).start();
         }
 
     public void checkForSDKVersion() {
@@ -104,6 +125,7 @@ public class game extends Activity {
         shotsCurrentText = (TextView) findViewById(R.id.shotsTextField);
         shieldsLeftText = (TextView) findViewById(R.id.shieldsTextField);
         gameStateText = (TextView) findViewById(R.id.gameStateText);
+        winsText =  (TextView) findViewById(R.id.wins);
         nameText = (TextView) findViewById(R.id.yourNameText);
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/gothic.TTF");
         gameStateText.setTypeface(face);
@@ -111,16 +133,16 @@ public class game extends Activity {
         gameContainer = (RelativeLayout) findViewById(R.id.game);
         shoot.setTag(IMAGEVIEW_TAG);
         activity = this;
+        shield = (Button) findViewById(R.id.shieldButton);
+        reload = (Button) findViewById(R.id.reloadButton);
         TextView c = (TextView) findViewById(R.id.console);
         c.setMovementMethod(new ScrollingMovementMethod());
         Utils.setUnits((TextView) findViewById(R.id.console), (TextView) findViewById(R.id.gameStateText), (TextView) findViewById(R.id.wins), (Button) findViewById(R.id.shootButton), (Button) findViewById(R.id.shieldButton), (Button) findViewById(R.id.reloadButton));
         shoot.setOnLongClickListener(new MyClickListener());
-        disableButtons(null, null);
-    }
-    public int convertToDps(int dps) {
-        final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
-        int pixels = (int) (dps * scale + 0.5f);
-        return pixels;
+        activityInitialized=true;
+        wins=0;
+        isFirstRound=true;
+        disableButtons("all", null);
     }
     public void newDoRound(View v) {
         Player p = Utils.getPlayer("Pesho");
@@ -139,6 +161,7 @@ public class game extends Activity {
         p.setWins(2);
     }
     public void restartGame() {
+        isAlive=true;
         setShields(Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW"));
         setShots(Variables.allVariables.get("START_AMMO"));
         for(Player p: Utils.players) {
@@ -148,7 +171,7 @@ public class game extends Activity {
         }
     }
     public void finishAndRestart() {
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, ChooseGameMode.class));
         finish();
     }
     public void doRound(final int sec) {
@@ -157,31 +180,46 @@ public class game extends Activity {
         try {
             t.cancel();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+            interrupted=false;
+            secondsTicked = 0;
+            currentProgress = 0;
+            t = new Timer();
+        if(isAlive) {
+            Log.e("IsAlive", "In doRound true");
+            if (isFirstRound) {
+                Utils.state("A new round in progress");
+                shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
+                shots = Variables.allVariables.get("START_AMMO");
+                wins = 0;
+                isFirstRound = false;
+                drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
+                nameText.setText("Playing as " + Utils.getName());
+                shoot.setOnLongClickListener(new MyClickListener());
+            }
 
+            if (shots > 0) {
+                Utils.enableButtons("shoot", null);
+            }
+            if (shields > 0) {
+                Log.e("SHIELDS", String.valueOf(shields));
+                Utils.enableButtons("shield", null);
+            } else {
+                shield.setBackgroundColor(Color.parseColor("#FF748D9A"));
+                shield.setEnabled(false);
+            }
+            if (shots < Variables.allVariables.get("MAX_AMMO")) {
+                Log.e("SHOTS", String.valueOf(shots));
+                Utils.enableButtons("reload", null);
+            } else {
+                reload.setBackgroundResource(R.drawable.round_right_grey_fusster);
+                reload.setEnabled(false);
+            }
+            setShots(shots);
+            setShields(shields);
+            setWins(wins);
         }
-        secondsTicked=0;
-        currentProgress=0;
-        if (isFirstRound) {
-            shields = Variables.allVariables.get("MAX_SHIELDS_IN_A_ROW");
-            shots = Variables.allVariables.get("START_AMMO");
-            isFirstRound = false;
-            drawPlayersBlocks(Utils.getPlayers(), Utils.getPlayers().size());
-            nameText.setText("Playing as " + Utils.getName());
-            shoot.setOnLongClickListener(new MyClickListener());
-        }
-        t = new Timer();
-
-        if (shields > 0) {
-            Utils.enableButtons("shield", null);
-        }
-        if (shots > 0) {
-            Utils.enableButtons("shoot", null);
-        }
-        if (shots < Variables.allVariables.get("MAX_AMMO")) {
-            Utils.enableButtons("reload", null);
-        }
-        setShots(shots);
-        setShields(shields);
 
         Drawable d = getResources().getDrawable(R.drawable.fusster_color);
         timer.setColor(((ColorDrawable) d).getColor());
@@ -192,23 +230,26 @@ public class game extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(secondsTicked<=sec) {
-                            timeLeft.setText(Integer.toString(sec-secondsTicked));
-                            currentProgress+=100/sec;
-                            timer.setProgressWithAnimation(currentProgress+100/sec);
+                        if (secondsTicked <= sec && !interrupted) {
+                            timeLeft.setText(Integer.toString(sec - secondsTicked));
+                            currentProgress += 100 / sec;
+                            timer.setProgressWithAnimation(currentProgress + 100 / sec);
                             secondsTicked++;
                         } else {
-                            timeLeft.setText("Time's up");
-                            Utils.disableButtons(null, null);
+                            Log.e("Interrupted", "In doRound Timer else " + secondsTicked + " " + sec + " " + interrupted);
+                            if (!interrupted)
+                                timeLeft.setText("Time's up");
+                            timer.setProgressWithAnimation(100);
+                            Utils.disableButtons("all", null);
                             t.cancel();
                         }
                     }
                 });
-                }
+            }
         }, 0, 1000);
         }
     public void shoot(String name) {
-        Utils.send("shoot:"+name);
+        Utils.send("shoot:" + name);
         shots--;
         setShots(shots);
         endTurn("You played shoot this round!");
@@ -221,7 +262,7 @@ public class game extends Activity {
         setShots(shots);
         restartShields();
         send("reload");
-        Utils.disableButtons(null, "You reloaded this round");
+        endTurn("You reloaded this round");
         Log.e("Pressed", "reload");
     }
 
@@ -253,22 +294,33 @@ public class game extends Activity {
         this.finish();
     }
     public void setShots(int shots) {
-        game.shots =shots;
-        shotsCurrentText.setText(String.valueOf(game.shots));
+        Game.shots =shots;
+        shotsCurrentText.setText(String.valueOf(Game.shots));
     }
     public void setShields(int shields) {
-        game.shields =shields;
-        shieldsLeftText.setText(String.valueOf(game.shields));
+        Game.shields =shields;
+        shieldsLeftText.setText(String.valueOf(Game.shields));
+    }
+    public void setWins(int wins) {
+        Game.wins =wins;
+        winsText.setText(String.valueOf(Game.wins));
     }
     public void endTurn(String str) {
-        Utils.disableButtons(null, str);
+        Utils.disableButtons("all", str);
         Drawable d = getResources().getDrawable(R.drawable.fusster_color_disabled);
         timer.setColor(((ColorDrawable) d).getColor());
     }
 
     public void interruptTimer() {
         currentProgress=100;
+        interrupted=true;
         secondsTicked=Variables.allVariables.get("ROUND_DELAY");
+    }
+
+    public void makeToast(String str) {
+        Context context = Game.activity.getApplicationContext();
+        Toast.makeText(context, str,
+                Toast.LENGTH_LONG).show();
     }
 
     public synchronized void drawPlayersBlocks(List<Player> players, int size) {
@@ -307,6 +359,13 @@ public class game extends Activity {
             id++;
         }
     }
+
+    public int convertToDps(int dps) {
+        final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
+        int pixels = (int) (dps * scale + 0.5f);
+        return pixels;
+    }
+
     public int getScreenHeight() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -383,7 +442,7 @@ public class game extends Activity {
                         Utils.append("You tried to shoot " + p.getName());
                         Context context = getApplicationContext();
                         shoot(p.getName());
-                        Toast.makeText(context, "You tried to shoot: " + p.getName(),
+                        Toast.makeText(context, "You tried to shoot " + p.getName(),
                                 Toast.LENGTH_LONG).show();
                     } else {
                         Context context = getApplicationContext();
